@@ -137,6 +137,28 @@ a replacement model or threshold after seeing final results.
 
 ## Execution evidence and limits
 
+The pinned base checkpoint completed calibration and policy evaluation on
+2026-09-22. The [aggregate result](../research/results/arbanking77_base_policy_20260922.json)
+records the protocol, source and model fingerprints, evidence-file checksums,
+metrics and every tested threshold. An independent replay reproduced the
+temperature fit, metrics and selection from the saved prediction artifacts.
+There were 3,034 calibration examples and 1,478 independent policy representatives
+per language. The fitted choice temperature was 2.22636, with no bucket overrides.
+
+| Policy slice | Intent accuracy, raw and calibrated | NLL, raw / calibrated | ECE (15 bins), raw / calibrated |
+| --- | ---: | ---: | ---: |
+| English | 47.56% | 3.361 / 2.345 | 0.324 / 0.085 |
+| Modern Standard Arabic | 20.91% | 4.764 / 3.476 | 0.413 / 0.068 |
+
+Temperature scaling improved these probability metrics without changing argmax
+accuracy. **Neither language had a qualifying threshold.** At confidence 0.5,
+English accepted 41.20% of examples with 31.69% observed error; Arabic accepted
+12.25% with 58.01% observed error. The simultaneous bounds also failed, as did
+every other threshold in the fixed grid. The coordinator correctly refused to
+freeze this candidate. No final-test inference was performed and no deployment
+was qualified. These are policy-partition results for the unadapted baseline;
+the declared training candidates still require their own independent evaluation.
+
 A CPU pilot used four training-only examples from two source families, the actual
 322M multilingual checkpoint, and the complete 77-option schema. All option text
 remained distinct and untruncated at `max_len=1024`, `head_max_len=768`. On the
@@ -147,7 +169,8 @@ source assets were unchanged. These timings include this host's conditions and
 are not deployment throughput estimates.
 
 That pilot establishes execution and recovery only. It does not establish
-accuracy, calibration improvement, or an achievable automation rate. The full
+accuracy, calibration improvement, or an achievable automation rate. The separate
+baseline results above do not establish useful adapted-model automation. Full
 adaptation and independent evaluation are still required. Synthetic CPU tests
 can be run separately without obtaining the corpus or pretrained weights:
 
