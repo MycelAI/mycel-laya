@@ -49,7 +49,9 @@ class DownloadTests(unittest.TestCase):
             "encoder": "unused/offline", "head_layers": 0, "act_costs": {"act": 0},
             "max_len": 64, "head_max_len": 32,
         }))
-        cls.runtime_files = {str(p.relative_to(cls.repo)) for p in cls.repo.rglob("*") if p.is_file()}
+        # Hub repository paths use '/' even when the fixture lives on Windows.
+        cls.runtime_files = {p.relative_to(cls.repo).as_posix()
+                             for p in cls.repo.rglob("*") if p.is_file()}
         for subfolder in ("multilingual", "typed-decisions", "variants/english"):
             for filename in cls.runtime_files:
                 target = cls.repo / subfolder / filename
