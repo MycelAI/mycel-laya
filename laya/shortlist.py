@@ -122,6 +122,7 @@ def embed_fn_from_agent(
 
     Padding positions are excluded from the mean. The encoder's train/eval flag is
     left as the caller set it (a loaded ``Agent`` is already in eval).
+    Each call uses the current ``agent.device``, including after CPU fallback.
     """
     if isinstance(max_length, bool) or not isinstance(max_length, int) or max_length < 1:
         raise ValueError("max_length must be a positive integer, got %r" % (max_length,))
@@ -132,13 +133,13 @@ def embed_fn_from_agent(
 
     tok = agent.tok
     encoder = agent.model.encoder
-    device = agent.device
 
     def embed_fn(texts: Sequence[str]) -> np.ndarray:
         rows = ["" if text is None else str(text) for text in texts]
         hidden = _hidden_size(encoder)
         if not rows:
             return np.zeros((0, hidden), dtype=np.float32)
+        device = agent.device
         parts: List[np.ndarray] = []
         for start in range(0, len(rows), batch_size):
             chunk = rows[start : start + batch_size]
