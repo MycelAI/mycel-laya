@@ -147,3 +147,8 @@ python tests/test_arbanking_adapter.py
 python tests/test_adapt_train.py
 python tests/test_adaptation_finalize.py
 ```
+
+The finalization tests include a complete run through real local-fixture forward
+passes, calibration, selection, final evaluation, publication and prediction.
+That fixture deliberately has a trivial scoring rule and synthetic labels; its
+passing gate verifies that the stages connect, not that a trained model is useful.

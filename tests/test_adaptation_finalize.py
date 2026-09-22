@@ -15,11 +15,15 @@ sys.path.insert(0, str(ROOT))
 
 import test_adapt_bundle as fixtures  # noqa: E402
 import torch  # noqa: E402
+from safetensors.torch import load_file, save_file  # noqa: E402
 
 from laya.adapt_bundle import load_bundle  # noqa: E402
 from laya.adapt_data import fingerprint, read_dataset  # noqa: E402
 from laya.adapt_model import checkpoint_files  # noqa: E402
 from laya.adapt_policy import select_bound_policy  # noqa: E402
+from research.scripts import (  # noqa: E402
+    evaluate_adaptation_candidate as candidate_recipe,
+)
 from research.scripts import finalize_adaptation_experiment as recipe  # noqa: E402
 
 
@@ -204,6 +208,32 @@ class FinalizeTests(unittest.TestCase):
         recipe._atomic_save(identity, identity_path)
         with self.assertRaisesRegex(ValueError, "after final evaluation"):
             self.finalize(receipt, resume=True)
+
+    def test_complete_local_model_pipeline_without_mocked_prediction_artifacts(self):
+        f = self.fixture
+        # A zero scorer ties on every option; this degenerate synthetic dataset
+        # labels every record with the first option. It tests plumbing, not skill.
+        path = f.model.model_dir / "model.safetensors"
+        weights = load_file(str(path))
+        weights = {name: torch.zeros_like(value) if name.startswith("scorer.") else value
+                   for name, value in weights.items()}
+        save_file(weights, str(path))
+        self.protocol["base_model_files"] = checkpoint_files(f.model.model_dir)
+        self.protocol["policy"]["thresholds"] = [0.0]
+        candidate_dir = f.model.root / "actual-candidate"
+        report = candidate_recipe.evaluate(self.protocol, "base", f.data.directory, f.model.model_dir,
+                                            candidate_dir, log=lambda value: None)
+        self.assertTrue(report["selection"]["passed"])
+        self.candidates = [candidate_dir]
+        receipt = self.freeze()
+        result = self.finalize(receipt)
+        self.assertEqual(result["status"], "qualified")
+        self.assertTrue((self.run_dir / "test/predictions.json").is_file())
+        bundle = load_bundle(f.output, expected_manifest_sha256=result["bundle"]["manifest_sha256"])
+        predicted = bundle.predict("charged error", language="en")
+        self.assertEqual(predicted["status"], "automate")
+        self.assertEqual(predicted["value"], "billing")
+        self.assertEqual(predicted["prediction"]["probabilities"], [.5, .5])
 
 
 if __name__ == "__main__":
