@@ -419,6 +419,10 @@ For custom labelled examples, the opt-in [adaptation data utilities](docs/adapta
 validate typed labels, track provenance and keep related examples together in four
 reproducible partitions for training, calibration, policy selection and final testing.
 
+The opt-in [local supervised runner](docs/adaptation_training.md) resumes weights,
+optimizer, scheduler and random state from a verified checkpoint. Its exports
+clear inherited calibration and remain compatible with the prediction SDK.
+
 Fine-tune Laya on your own domain data. The notebook runs on Kaggle's free 2xT4 GPUs and does
 the whole loop: build the dataset, train with RLCD (proper-scoring-rule rewards, GRPO-style
 policy gradient), fit calibration temperatures, evaluate, and push the result to the Hub.
