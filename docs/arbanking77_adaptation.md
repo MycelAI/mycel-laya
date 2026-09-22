@@ -60,6 +60,29 @@ The selection procedure allocates the 5% family error probability across four
 possible model candidates, language slices, thresholds and the two bounds. Unused
 candidate slots do not increase the available error probability.
 
+Run the commands from the repository root. `local-multilingual` must contain the
+multilingual checkpoint at the protocol's pinned model revision, with the files
+listed in `base_model_files`. Preserve the same Python/library versions for
+collection, finalization and deployment verification.
+
+Use two CPU threads consistently, including during training and candidate
+evaluation, so their runtime records agree with the finalization and measurement
+commands below. Set these variables in the shell before starting Python.
+
+PowerShell:
+
+```powershell
+$env:OMP_NUM_THREADS = "2"
+$env:MKL_NUM_THREADS = "2"
+```
+
+POSIX shell:
+
+```sh
+export OMP_NUM_THREADS=2
+export MKL_NUM_THREADS=2
+```
+
 The candidate recipe verifies the pinned base files (or the complete training-run
 lineage for an adapted export), collects only calibration and policy partitions,
 fits temperatures, computes independent policy metrics, and tests the fixed grid:
@@ -80,6 +103,47 @@ final-test attempts nor replacing a failed model using final-test results is par
 of this protocol. A failure to qualify is a measured limitation, not permission
 to lower the gate after seeing outcomes. Base-model pretraining exposure to this
 public corpus is unknown; the split protects adaptation-stage independence only.
+
+### Train and evaluate adapted candidates
+
+These single-line commands work in PowerShell and POSIX shells and spell out the
+frozen training settings. Use a distinct run directory for each candidate. Start
+with the head-only candidate:
+
+```shell
+python -m laya.adapt_train --dataset prepared-arbanking77 --model local-multilingual --run runs/head-1epoch --device cpu --epochs 1 --batch-size 1 --grad-accum 32 --learning-rate 0.0001 --encoder-learning-rate 0.00002 --weight-decay 0.01 --max-grad-norm 1 --seed 42 --checkpoint-every 25 --max-len 1024 --head-max-len 768
+```
+
+After it reports `complete` and publishes `export/`, collect its calibration and
+policy evidence:
+
+```shell
+python research/scripts/evaluate_adaptation_candidate.py --protocol research/arbanking77_protocol.json --candidate head-1epoch --dataset prepared-arbanking77 --model runs/head-1epoch/export --output runs/head-evaluation
+```
+
+If no completed candidate qualifies, the next declared candidate trains the
+encoder for one epoch:
+
+```shell
+python -m laya.adapt_train --dataset prepared-arbanking77 --model local-multilingual --run runs/encoder-1epoch --device cpu --epochs 1 --batch-size 1 --grad-accum 32 --learning-rate 0.0001 --encoder-learning-rate 0.00002 --weight-decay 0.01 --max-grad-norm 1 --seed 42 --checkpoint-every 25 --max-len 1024 --head-max-len 768 --train-encoder
+```
+
+Evaluate its completed export using `--candidate encoder-1epoch`,
+`--model runs/encoder-1epoch/export` and a new `--output runs/encoder-evaluation`.
+If that still leaves no qualifying candidate, the final declared candidate is:
+
+```shell
+python -m laya.adapt_train --dataset prepared-arbanking77 --model local-multilingual --run runs/encoder-3epoch --device cpu --epochs 3 --batch-size 1 --grad-accum 32 --learning-rate 0.0001 --encoder-learning-rate 0.00002 --weight-decay 0.01 --max-grad-norm 1 --seed 42 --checkpoint-every 25 --max-len 1024 --head-max-len 768 --train-encoder
+```
+
+Evaluate that export with `--candidate encoder-3epoch`, its own `export/` path and
+a new output directory. All three training commands start from `local-multilingual`.
+To resume interrupted training, repeat the same command with `--resume`, preserving
+the run directory, source snapshot and recorded environment. See the
+[training recovery contract](adaptation_training.md#recovery-contract). Resume an
+interrupted candidate evaluation by adding `--resume` to its original evaluation
+command. Training completion alone does not qualify a candidate; the independent
+policy report must pass before selection and final testing.
 
 ## Freeze selection and finalize
 
