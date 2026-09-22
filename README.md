@@ -193,6 +193,11 @@ print("Churn Risk :", answers["churn_risk"]["noul"])       # -> 0.892 (89.2% pro
 
 ## Automated Confidence Gating
 
+For a measured error and coverage requirement, use the opt-in
+[threshold selection and independent testing utilities](docs/risk_policy.md).
+They account for sample uncertainty and multiple threshold comparisons, and require
+separate evidence for every declared language.
+
 Because Laya's probabilities are trained with strictly proper scoring rules (RLCD), confidence scores are statistically meaningful:
 
 ```python
