@@ -71,12 +71,19 @@ responsible for preserving those relationships and auditing their data.
 
 Each connected group is hashed with the seed into one of four roles: `train`
 (60%), `calibration` (15%), `policy` (10%) and `test` (15%). Fractions can be
-overridden with four positive values summing to one. Assignment is independent of
+overridden with four nonnegative values summing to one. Assignment is independent of
 input row order and uses no gold labels. Fractions are expected proportions, not
 guaranteed split sizes or stratification. Small or skewed datasets can leave a
 partition, task or language without enough evidence; inspect the counts before
 training. Adding a connecting record can merge groups and change assignments,
 so freeze the entire prepared dataset before running an experiment.
+
+To preserve a source's official test set, pass `fixed_splits={"example:42": "test"}`
+to `write_dataset` or `make_split_manifest`. A reserved example places its entire
+connected family in that role; contradictory reservations are rejected. The
+manifest records and verifies reservations. Fractions then apply only to the
+remaining groups. Setting the test fraction to zero reserves that role exclusively
+for the fixed test families. Missing roles still provide no usable evidence.
 
 The manifest retains **all rows**, including duplicates, and reports both row
 counts and connected-group counts by split and language. Neither retaining rows
