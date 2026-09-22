@@ -88,7 +88,9 @@ def verify_prediction_dataset(artifact, dataset_dir):
             expected.append({"id": row["id"], "group_id": manifest["groups"][row["id"]],
                              "language": row["language"], "question_id": qid, "qtype": QTYPES[question["type"]],
                              "label": target_index(question, row["targets"][qid])})
-    key = lambda row: (row["question_id"], row["id"])
+    def key(row):
+        return row["question_id"], row["id"]
+
     if sorted(expected, key=key) != sorted((_metadata(row) for row in records), key=key):
         raise ValueError("prediction records differ from independent representatives of the declared partition")
     return questions
