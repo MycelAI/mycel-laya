@@ -81,6 +81,51 @@ of this protocol. A failure to qualify is a measured limitation, not permission
 to lower the gate after seeing outcomes. Base-model pretraining exposure to this
 public corpus is unknown; the split protects adaptation-stage independence only.
 
+## Freeze selection and finalize
+
+The coordinator accepts a completed prefix of the candidate sequence: for
+example, base alone, or base followed by head-1epoch. Supply every completed
+candidate report, including failures. It rechecks dataset membership, rendering,
+calibration and policy selection, then chooses the qualified model with the
+highest minimum accepted fraction across required languages. Ties follow the
+predeclared order. It refuses to freeze a selection if no candidate qualifies.
+This command performs no model inference and reads no final-test predictions:
+
+```shell
+python research/scripts/finalize_adaptation_experiment.py select --protocol research/arbanking77_protocol.json --dataset prepared-arbanking77 --candidate-report runs/base-evaluation --output runs/frozen-selection
+```
+
+Add `--candidate-report runs/head-evaluation` when that candidate has also been
+completed. Preserve the printed `selection_sha256` through a trusted channel.
+Then provide that checksum and the selected model directory to the separate
+final phase, using the same CPU runtime and thread count as candidate evaluation:
+
+```shell
+python research/scripts/finalize_adaptation_experiment.py finalize --selection runs/frozen-selection --expected-selection-sha256 TRUSTED_SELECTION_SHA256 --dataset prepared-arbanking77 --model local-multilingual --run runs/final --bundle deploy/arbanking77-v1 --threads 2
+```
+
+Replace the checksum placeholder with the selection receipt's value. For an
+adapted candidate, replace the model path with that training run's `export/`.
+The coordinator validates its lineage and writes `run.json` before collecting
+test predictions. Use `--resume` after interruption: the same selection, model,
+data and output location are required. Completed inference chunks are reused;
+a completed final run returns its verified result without another forward pass.
+An interruption after publishing the bundle recovers it using the durable receipt.
+
+`result.json` records `qualified` only if the fixed policy passes its independent
+final error and coverage bounds. Otherwise it records `failed_gate` and publishes
+a [review-only bundle](adaptation_bundle.md); it does not try another candidate or
+adjust a threshold. A review-only result does not meet the automation target.
+`final-report.json` retains the measured failure as well as calibrated/raw metrics.
+The bundle and its separately trusted receipt expose explicit `automate`/`review`
+outcomes through `laya.adapt_bundle.load_bundle`.
+
+The coordinator enforces identity within a run. It cannot prevent someone from
+manually starting a new experiment after inspecting final results; doing so would
+invalidate this protocol's held-out claim. Keep the frozen selection, candidate
+reports and final-run records together as the audit trail. Selection records
+include predictions and sample metadata and are not the deployable bundle.
+
 ## Execution evidence and limits
 
 A CPU pilot used four training-only examples from two source families, the actual
@@ -100,4 +145,5 @@ can be run separately without obtaining the corpus or pretrained weights:
 ```shell
 python tests/test_arbanking_adapter.py
 python tests/test_adapt_train.py
+python tests/test_adaptation_finalize.py
 ```
