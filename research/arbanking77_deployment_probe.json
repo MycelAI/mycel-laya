@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "stage": "deployment_probe",
+  "purpose": "Unlabelled execution and portability probes, not an accuracy or model-selection benchmark",
+  "warmup": 2,
+  "repeats": 10,
+  "cases": [
+    {
+      "id": "english_original",
+      "language": "en",
+      "state": "I have been charged twice for the same card payment.",
+      "expect": "prediction"
+    },
+    {
+      "id": "english_paraphrase",
+      "language": "en",
+      "state": "The same card purchase appears twice on my statement.",
+      "expect": "prediction"
+    },
+    {
+      "id": "english_noisy_json",
+      "language": "en",
+      "state": {
+        "subject": "CARD PAYMENT??",
+        "message": "  The same card purchase appears twice on my statement.\n\nPlease check!  "
+      },
+      "expect": "prediction"
+    },
+    {
+      "id": "arabic_original",
+      "language": "ar",
+      "state": "تم خصم مبلغ عملية الشراء نفسها من بطاقتي مرتين.",
+      "expect": "prediction"
+    },
+    {
+      "id": "arabic_paraphrase",
+      "language": "ar",
+      "state": "تظهر عملية الدفع بالبطاقة مرتين في كشف حسابي.",
+      "expect": "prediction"
+    },
+    {
+      "id": "arabic_noisy_json",
+      "language": "ar",
+      "state": {
+        "subject": "عملية الدفع؟؟",
+        "message": "  تظهر عملية الدفع بالبطاقة مرتين في كشف حسابي.\n\nيرجى التحقق!  "
+      },
+      "expect": "prediction"
+    },
+    {
+      "id": "empty_state",
+      "language": "en",
+      "state": "",
+      "expect": "review",
+      "reason": "empty_or_invalid_state"
+    },
+    {
+      "id": "missing_state",
+      "language": "ar",
+      "state": null,
+      "expect": "review",
+      "reason": "empty_or_invalid_state"
+    },
+    {
+      "id": "unsupported_language",
+      "language": "de",
+      "state": "Die Kartenzahlung wurde zweimal abgebucht.",
+      "expect": "review",
+      "reason": "unsupported_language"
+    },
+    {
+      "id": "truncated_state",
+      "language": "en",
+      "state": "charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged charged ",
+      "expect": "review",
+      "reason": "unsupported_input"
+    }
+  ]
+}

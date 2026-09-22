@@ -428,9 +428,11 @@ The opt-in [local supervised runner](docs/adaptation_training.md) resumes weight
 optimizer, scheduler and random state from a verified checkpoint. Its exports
 clear inherited calibration and remain compatible with the prediction SDK.
 Use [independent evaluation and bound calibration](docs/adaptation_evaluation.md)
-for resumable logit collection and held-out temperature fitting.
-Publish [verified selective-decision bundles](docs/adaptation_bundle.md) to return
-explicit automatic or review outcomes under a fixed, independently tested policy.
+for resumable logit collection and held-out temperature fitting. The
+[English/MSA support-intent experiment](docs/arbanking77_adaptation.md) provides a
+pinned source adapter and a predeclared evaluation protocol. Its coordinator
+freezes selection before final testing; [verified deployment bundles](docs/adaptation_bundle.md)
+return explicit automatic or review outcomes under that fixed policy.
 
 Fine-tune Laya on your own domain data. The notebook runs on Kaggle's free 2xT4 GPUs and does
 the whole loop: build the dataset, train with RLCD (proper-scoring-rule rewards, GRPO-style
