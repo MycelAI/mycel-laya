@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "stage": "cross_platform_policy_replay",
+  "experiment": "arbanking77-en-msa-v1",
+  "candidate": "base",
+  "protocol_sha256": "aa91e979f2bab93dabb4e8f00ec246de25cd3bf0e2c6e25266aee8514a1d0f9c",
+  "dataset_manifest_sha256": "d0035dba6987ebf5c69a223013e4ed57fe8bf44d64716dc24e1bc53ca62b58e0",
+  "policy_records": 2956,
+  "options": 77,
+  "probabilities_compared": 227612,
+  "thresholds_per_record": 12,
+  "individual_threshold_decisions_compared": 35472,
+  "maximum_absolute_bound_difference": 1.1102230246251565e-16,
+  "numerical_comparison_absolute_tolerance": 1e-12,
+  "verified_at": "2026-09-22T23:34:08.964417+00:00",
+  "passed": true,
+  "analysis_replay": {
+    "source_report_sha256": "8fbbf0524dc6f8b68c39c963c555438450b8392fe5ddef90d5a2a26a5e4b7fac",
+    "source_commit": "a2d8763fedc0244a8a184958cbd272ac842a53ec",
+    "source_samples_sha256": "ee22559d26f57b6be263b28e0b43c2aa7908e37c7ea78ed65ff133bb1c4fa89b",
+    "replayed_samples_sha256": "585502bb88e6e33046f052c2f2b68a688af53cb74622d78802925eb86a1d97c8",
+    "maximum_probability_difference": 1.1102230246251565e-16,
+    "maximum_score_difference": 1.1102230246251565e-16,
+    "bound_differences": [
+      {
+        "language": "en",
+        "threshold": 0.0,
+        "field": "error_upper",
+        "windows": 0.5695292345102462,
+        "linux": 0.5695292345102463
+      },
+      {
+        "language": "en",
+        "threshold": 0.5,
+        "field": "coverage_lower",
+        "windows": 0.3678813095835506,
+        "linux": 0.3678813095835507
+      },
+      {
+        "language": "en",
+        "threshold": 0.6,
+        "field": "error_upper",
+        "windows": 0.3497432719081237,
+        "linux": 0.34974327190812365
+      },
+      {
+        "language": "en",
+        "threshold": 0.8,
+        "field": "error_upper",
+        "windows": 0.3149592186411722,
+        "linux": 0.31495921864117227
+      },
+      {
+        "language": "en",
+        "threshold": 0.8,
+        "field": "coverage_lower",
+        "windows": 0.1964992832104181,
+        "linux": 0.19649928321041799
+      },
+      {
+        "language": "en",
+        "threshold": 0.85,
+        "field": "error_upper",
+        "windows": 0.3055343344217489,
+        "linux": 0.30553433442174893
+      },
+      {
+        "language": "en",
+        "threshold": 0.95,
+        "field": "error_upper",
+        "windows": 0.305497670207814,
+        "linux": 0.30549767020781404
+      }
+    ],
+    "all_individual_threshold_decisions_unchanged": true,
+    "all_counts_and_gate_outcomes_unchanged": true,
+    "scope": "Linux numerical replay of policy selection from the same frozen Windows logits and calibration. Original calibration and descriptive metrics are retained. No new model inference or candidate."
+  },
+  "original_evidence_files_sha256": {
+    "report.json": "8fbbf0524dc6f8b68c39c963c555438450b8392fe5ddef90d5a2a26a5e4b7fac",
+    "calibration.json": "cd7010741dcea97326356d4fdd32d02fbaf58245206a67d6b5dd035cb43694fc",
+    "calibration/predictions.json": "ac8aaa43f737746d1c0d519d416490489fab7cc73336ea97bece64e5c8653d79",
+    "policy/predictions.json": "e8ebea7a87aba21936a63fe4a006160e284d4cfe0d650db808f8e08dacb09114"
+  },
+  "derived_report_sha256": "91595766e30e82e600282b377e66033eb11c4afd1d0912a771e99e7437d3be77",
+  "strict_production_replay_passed": true,
+  "failed_baseline_selection_refused": true,
+  "final_test_evaluated": false,
+  "model_inference_performed": false,
+  "limitations": [
+    "Statistical replay of existing baseline evidence; no new inference or accuracy improvement",
+    "Original Windows report and calibration artifacts remain preserved",
+    "Production replay and artifact checks were not changed",
+    "This does not measure real-model serving portability or authorize final testing"
+  ]
+}

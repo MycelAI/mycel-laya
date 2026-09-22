@@ -65,6 +65,15 @@ multilingual checkpoint at the protocol's pinned model revision, with the files
 listed in `base_model_files`. Preserve the same Python/library versions for
 collection, finalization and deployment verification.
 
+Keep candidate statistical analysis and finalization on one platform. Matching
+Python/library versions can still produce different last-bit probabilities and
+binomial bounds on Windows and Linux, so a copied report can fail exact replay
+even when its source-file hashes match. Preserve original reports when moving
+saved logits; any destination-platform re-analysis needs its own linked receipt
+and verification of probabilities, individual threshold decisions, counts and
+gate outcomes. The coordinator's exact artifact checks remain in force. Serving
+portability is checked later using the identical exported bundle.
+
 Use two CPU threads consistently, including during training and candidate
 evaluation, so their runtime records agree with the finalization and measurement
 commands below. Set these variables in the shell before starting Python.
@@ -222,6 +231,18 @@ every other threshold in the fixed grid. The coordinator correctly refused to
 freeze this candidate. No final-test inference was performed and no deployment
 was qualified. These are policy-partition results for the unadapted baseline;
 the declared training candidates still require their own independent evaluation.
+
+A [Windows/Linux replay audit](../research/results/arbanking77_base_cross_platform_replay_20260922.json)
+used the same saved baseline logits and calibration, with no new inference.
+The maximum absolute difference across 227,612 policy probabilities was
+approximately `1.11e-16`; every one of the 35,472 per-example threshold comparisons,
+aggregate count and gate outcome was unchanged. Seven binomial bounds also had
+a maximum difference of approximately `1.11e-16`. These last-bit
+differences changed the derived probability checksum and prevented direct exact
+replay of the Windows report on Linux. A separate Linux report links the original
+report and both derived checksums, preserves the original calibration and metrics,
+and passes the unchanged replay checks. Final selection still correctly refuses
+the failed baseline. This is evidence about numerical replay, not model accuracy.
 
 A CPU pilot used four training-only examples from two source families, the actual
 322M multilingual checkpoint, and the complete 77-option schema. All option text
