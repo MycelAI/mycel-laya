@@ -189,6 +189,11 @@ print("Urgency    :", answers["urgency"]["score"])        # -> 1.84 / 2.0
 print("Churn Risk :", answers["churn_risk"]["noul"])       # -> 0.892 (89.2% probability)
 ```
 
+Passing an empty question dictionary to `agent.predict(state, {})` or
+`agent.system_one(state, {})` returns the standard response with `"answers": {}`
+and `"usage": {"input_tokens": 0, "output_tokens": 0}`. The state is not tokenized
+and no model forward pass runs.
+
 ---
 
 ## Automated Confidence Gating

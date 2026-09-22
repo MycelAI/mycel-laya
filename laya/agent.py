@@ -275,8 +275,16 @@ class Agent:
 
         Returns:
             Dictionary with answers, probabilities, calibrated confidence, and token usage.
+            Empty questions return empty answers and zero token usage without tokenization
+            or a model forward pass.
         """
         ids = list(questions.keys())
+        if not ids:
+            return {
+                "model": "laya-rl-agent",
+                "answers": {},
+                "usage": {"input_tokens": 0, "output_tokens": 0},
+            }
         items = []
         max_len = self.cfg.get("max_len", 512)
         head_max_len = self.cfg.get("head_max_len", 192)
