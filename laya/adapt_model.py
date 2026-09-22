@@ -90,6 +90,11 @@ def prepare_input(checkpoint, state, question):
     ids, markers = build_sequence(tokenizer, state, internal, cfg.get("max_len", 512), cfg.get("head_max_len", 192))
     if len(markers) != len(expected):
         raise ValueError("question loses options at the configured token budget")
+    instruction_ids = tokenizer("%s question: %s" % (
+        internal["t"], str(internal["ins"]).replace(tokenizer.mask_token, " ")),
+        add_special_tokens=False)["input_ids"]
+    if ids[1:markers[0] - 1] != instruction_ids:
+        raise ValueError("question instructions are truncated at the configured token budget")
     end = markers[-1] + len(expected[-1])
     boundaries = markers[1:] + [end]
     actual = [ids[start:stop] for start, stop in zip(markers, boundaries)]
