@@ -83,6 +83,22 @@ of calibration IDs or related families on policy/test partitions. Its full
 precision probabilities can feed [the risk-policy utilities](risk_policy.md);
 the score is maximum class probability, not SDK entropy confidence.
 
+For persisted policies, use `laya.adapt_policy.select_bound_policy(policy_logits,
+calibration, dataset_dir, question_id="queue", required_languages=["en", "ar"],
+alpha=0.0125)`. It checks the actual dataset partition and binds the exact model,
+rendering, ordered schema, calibration and policy evidence. Choose alpha according
+to the predeclared number of model candidates; the illustrated value allocates a
+5% family probability across four models. An optional `declaration` records the
+trusted protocol identifier. A failed selection remains a failed selection.
+
+Persist the selected policy before collecting final-test predictions. Then call
+`evaluate_bound_policy(test_logits, policy, calibration, dataset_dir)` to recompute
+the independent test bounds and metrics. It refuses failed selections, wrong
+partitions and changed calibration/model/schema links. The bound report carries
+the policy fingerprint so a deployment exporter can verify which decision rule
+was tested. These helpers do not authenticate arbitrary replacement of every
+artifact or prevent final-test reuse outside the experiment coordinator.
+
 Final-test collection is explicit (`--split test`). Run it only once a model,
 calibration and threshold policy are locked. These files do not prevent someone
 from inspecting the dataset outside the experiment, and this stage alone does
@@ -90,6 +106,7 @@ not publish or authorize a deployment bundle.
 
 ```shell
 python tests/test_adapt_evaluation.py
+python tests/test_adapt_policy.py
 ```
 
 Tests use synthetic logit distributions and tiny local checkpoint fixtures. They
