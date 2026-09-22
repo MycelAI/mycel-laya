@@ -415,6 +415,10 @@ result["shortlist"]["intent"]["labels"]  # the top 20 labels sent to the model
 
 ## Fine-Tuning
 
+For custom labelled examples, the opt-in [adaptation data utilities](docs/adaptation_data.md)
+validate typed labels, track provenance and keep related examples together in four
+reproducible partitions for training, calibration, policy selection and final testing.
+
 Fine-tune Laya on your own domain data. The notebook runs on Kaggle's free 2xT4 GPUs and does
 the whole loop: build the dataset, train with RLCD (proper-scoring-rule rewards, GRPO-style
 policy gradient), fit calibration temperatures, evaluate, and push the result to the Hub.
