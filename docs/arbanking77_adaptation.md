@@ -126,6 +126,15 @@ invalidate this protocol's held-out claim. Keep the frozen selection, candidate
 reports and final-run records together as the audit trail. Selection records
 include predictions and sample metadata and are not the deployable bundle.
 
+## Deployment measurements
+
+After a selected bundle passes its fixed final gate, use the
+[deployment measurement recipe](adaptation_measurement.md) on Windows and Linux.
+The same versioned unlabelled probe measures complete prediction calls, guard
+paths and process memory, then compares outcomes for the identical bundle. These
+measurements supplement the held-out quality report; they do not permit selecting
+a replacement model or threshold after seeing final results.
+
 ## Execution evidence and limits
 
 A CPU pilot used four training-only examples from two source families, the actual
