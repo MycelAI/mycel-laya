@@ -143,6 +143,8 @@ class AdaptTrainTests(unittest.TestCase):
         checkpoint = load_local_checkpoint(self.model_dir)
         with self.assertRaisesRegex(ValueError, "state is truncated"):
             prepare_input(checkpoint, "charged " * 100, self.questions["queue"])
+        with self.assertRaisesRegex(ValueError, "instructions are truncated"):
+            prepare_input(checkpoint, "charged", {**self.questions["queue"], "instructions": "question " * 100})
         for criteria in (["missing-a", "missing-b"], ["billing " * 50, "technical"]):
             question = {**self.questions["queue"], "criteria": criteria}
             with self.assertRaisesRegex(ValueError, "option text"):

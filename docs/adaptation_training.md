@@ -27,7 +27,7 @@ learning rate. `--device cuda` requires available CUDA; it never silently falls
 back. Mixed precision and distributed training are not supported by this runner.
 
 `--max-len` and `--head-max-len` must fit the task. The opt-in path rejects missing,
-truncated or token-identical options, and rejects truncated state. Preserving all
+truncated or token-identical options, truncated instructions, and truncated state. Preserving all
 markers alone is insufficient: shortened option descriptions can change the
 meaning of a task. The ordinary SDK's existing truncation behavior is unchanged.
 
