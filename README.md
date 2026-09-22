@@ -421,6 +421,18 @@ policy gradient), fit calibration temperatures, evaluate, and push the result to
 
 * **[`notebooks/laya_finetune_typed_decisions_2xT4_kaggle.ipynb`](notebooks/laya_finetune_typed_decisions_2xT4_kaggle.ipynb)**
 
+The notebook fits one `temperature` per type (`choice`, `score`, `noul`) and removes inherited
+`temperature_by_options` from the exported config. Otherwise those old bucket values take
+precedence at inference and silently mask the new fit. Existing checkpoints still honor
+intentional bucket-specific temperatures, falling back to the corresponding per-type value
+when a bucket is absent; the runtime's temperature clamp is unchanged.
+
+This fixes configuration persistence, not measured model accuracy or calibration quality.
+The notebook's calibration samples come from its training items; evaluate on separate held-out
+data before claiming an improvement. Already published checkpoints are not rewritten.
+Run the CPU-only regression checks with `python tests/test_calibration_persistence.py`
+(synthetic configs and tiny local fixtures; no pretrained downloads or training).
+
 Fine-tuning is where most of the value is. On the typed-decisions benchmark the base
 checkpoints score near chance zero-shot (0.36 and 0.35 against a 0.318 random baseline),
 while the fine-tuned checkpoint reaches **0.766** on the same 2,000 decisions -- above
