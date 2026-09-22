@@ -162,6 +162,30 @@ class SplitTests(unittest.TestCase):
         manifest = make_split_manifest([record("a")], questions())
         self.assertEqual(sorted(manifest["counts"].values()), [0, 0, 0, 1])
 
+    def test_reserved_source_test_split_propagates_to_related_examples(self):
+        rows = [record("a", group_id="translation"), record("b", group_id="translation"), record("c")]
+        fractions = {"train": .7, "calibration": .15, "policy": .15, "test": 0}
+        manifest = make_split_manifest(rows, questions(), fractions=fractions, fixed_splits={"a": "test"})
+        self.assertEqual(manifest["assignments"]["a"], "test")
+        self.assertEqual(manifest["assignments"]["b"], "test")
+        self.assertNotEqual(manifest["assignments"]["c"], "test")
+        verify_split_manifest(rows, questions(), manifest)
+        with self.assertRaisesRegex(ValueError, "conflicting"):
+            make_split_manifest(rows, questions(), fixed_splits={"a": "test", "b": "train"})
+        for fixed in ({"unknown": "test"}, {"a": "unknown"}):
+            with self.assertRaises(ValueError):
+                make_split_manifest(rows, questions(), fixed_splits=fixed)
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "reserved"
+            write_dataset(output, rows, questions(), fractions=fractions, fixed_splits={"a": "test"})
+            self.assertEqual(read_dataset(output)[2], manifest)
+
+    def test_rounded_hash_does_not_select_zero_fraction_partition(self):
+        fractions = {"train": .7, "calibration": .15, "policy": .15, "test": 0}
+        with patch("laya.adapt_data.fingerprint", return_value="f" * 64):
+            manifest = make_split_manifest([record("a")], questions(), fractions=fractions)
+        self.assertEqual(manifest["assignments"]["a"], "policy")
+
     def test_independent_representatives_use_neither_gold_values_nor_row_order(self):
         rows = [record(str(i), group_id="one-family", language="en" if i % 2 else "de") for i in range(20)]
         q = questions()

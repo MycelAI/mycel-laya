@@ -169,22 +169,28 @@ def _normalized_state(value: Any) -> Any:
 
 
 def make_split_manifest(records: Iterable[Mapping], questions: Mapping, *, seed: str = "laya-v1",
-                        fractions: Mapping = None) -> Dict:
+                        fractions: Mapping = None, fixed_splits: Mapping = None) -> Dict:
     """Hash related groups into four partitions, independent of input row order.
 
     Groups connected by normalized duplicate states or source identities are merged
     transitively. Contradictory labels for duplicate states are rejected. Row counts
     include duplicates and must not be used as independent statistical sample sizes.
-    Fractions are expected proportions, not exact sizes; small splits can be empty.
+    Fractions apply to unreserved groups. fixed_splits optionally reserves record
+    IDs for named partitions and propagates that reservation to their whole family.
+    Conflicting reservations fail. Small splits can be empty.
     """
     rows = validate_records(records, questions)
     _text(seed, "split seed")
     fractions = dict(DEFAULT_FRACTIONS if fractions is None else fractions)
     if set(fractions) != set(SPLITS) or any(
-        isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) or v <= 0
+        isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) or v < 0
         for v in fractions.values()
     ) or not math.isclose(sum(fractions.values()), 1.0, rel_tol=0, abs_tol=1e-12):
-        raise ValueError("split fractions must be positive train/calibration/policy/test values summing to one")
+        raise ValueError("split fractions must be nonnegative train/calibration/policy/test values summing to one")
+    if fixed_splits is not None:
+        if (not isinstance(fixed_splits, dict) or set(fixed_splits) - {row["id"] for row in rows}
+                or any(name not in SPLITS for name in fixed_splits.values())):
+            raise ValueError("fixed_splits must map known example ids to named partitions")
     parent = {row["group_id"]: row["group_id"] for row in rows}
 
     def root(group):
@@ -219,6 +225,13 @@ def make_split_manifest(records: Iterable[Mapping], questions: Mapping, *, seed:
         else:
             # A private copy accumulates partial labels without changing dataset rows.
             duplicate_states[state_hash] = copy.deepcopy(row)
+    reserved = {}
+    for row in rows:
+        if fixed_splits is not None and row["id"] in fixed_splits:
+            group, role = root(row["group_id"]), fixed_splits[row["id"]]
+            if group in reserved and reserved[group] != role:
+                raise ValueError("related examples have conflicting fixed split reservations")
+            reserved[group] = role
     assignments, groups = {}, {}
     counts = {name: 0 for name in SPLITS}
     languages = {name: {} for name in SPLITS}
@@ -227,12 +240,16 @@ def make_split_manifest(records: Iterable[Mapping], questions: Mapping, *, seed:
     for row in rows:
         group = root(row["group_id"])
         value = int(fingerprint([seed, group]), 16) / 2 ** 256
-        bound, chosen = 0.0, SPLITS[-1]
+        # Rounding a 256-bit hash to float can produce 1.0; never fall back to a
+        # zero-probability partition, including one reserved for official tests.
+        bound = 0.0
+        chosen = next(name for name in reversed(SPLITS) if fractions[name] > 0)
         for name in SPLITS:
             bound += fractions[name]
             if value < bound:
                 chosen = name
                 break
+        chosen = reserved.get(group, chosen)
         assignments[row["id"]] = chosen
         groups[row["id"]] = group
         counts[chosen] += 1
@@ -240,7 +257,7 @@ def make_split_manifest(records: Iterable[Mapping], questions: Mapping, *, seed:
         lang = row["language"]
         languages[chosen][lang] = languages[chosen].get(lang, 0) + 1
         language_group_sets[chosen].setdefault(lang, set()).add(group)
-    return {
+    manifest = {
         "schema_version": SCHEMA_VERSION, "seed": seed,
         "fractions": {name: fractions[name] for name in SPLITS},
         "questions_sha256": question_fingerprint(questions), "records_sha256": _records_fingerprint(rows),
@@ -250,13 +267,17 @@ def make_split_manifest(records: Iterable[Mapping], questions: Mapping, *, seed:
                                   for name, languages in language_group_sets.items()},
         "normalized_duplicate_rows": duplicate_count, "group_count": len(set(groups.values())),
     }
+    if fixed_splits is not None:
+        manifest["fixed_splits"] = dict(sorted(fixed_splits.items()))
+    return manifest
 
 
 def verify_split_manifest(records: Iterable[Mapping], questions: Mapping, manifest: Mapping) -> None:
     if (not isinstance(manifest, dict) or type(manifest.get("schema_version")) is not int
             or manifest["schema_version"] != SCHEMA_VERSION):
         raise ValueError("unsupported split manifest schema")
-    expected = make_split_manifest(records, questions, seed=manifest.get("seed"), fractions=manifest.get("fractions"))
+    expected = make_split_manifest(records, questions, seed=manifest.get("seed"), fractions=manifest.get("fractions"),
+                                   fixed_splits=manifest.get("fixed_splits"))
     # JSON comparison also rejects bools masquerading as integer counts in Python.
     if canonical_json(manifest) != canonical_json(expected):
         raise ValueError("split manifest does not match the data, questions or recorded split configuration")
@@ -286,11 +307,11 @@ def select_independent_records(records: Iterable[Mapping], questions: Mapping, m
 
 
 def write_dataset(destination, records: Iterable[Mapping], questions: Mapping, *, seed="laya-v1",
-                  fractions=None) -> Dict:
+                  fractions=None, fixed_splits=None) -> Dict:
     """Publish a new dataset directory atomically; never overwrite an existing one."""
     rows = validate_records(records, questions)
     checked = validate_questions(questions)
-    manifest = make_split_manifest(rows, checked, seed=seed, fractions=fractions)
+    manifest = make_split_manifest(rows, checked, seed=seed, fractions=fractions, fixed_splits=fixed_splits)
     destination = Path(destination)
     if destination.exists():
         raise FileExistsError("dataset destination already exists: %s" % destination)
