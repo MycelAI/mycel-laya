@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "experiment": "arbanking77-en-msa-v1",
+  "source_revision": "2e3a5639e254bc28828ed0af6d3059d64d3b97fc",
+  "dataset_manifest_sha256": "d0035dba6987ebf5c69a223013e4ed57fe8bf44d64716dc24e1bc53ca62b58e0",
+  "question_id": "intent",
+  "required_languages": ["en", "ar"],
+  "n_options": 77,
+  "sampling_unit": "one deterministic representative per connected source family and language",
+  "model_repository": "convaiinnovations/laya",
+  "model_revision": "1c5edc17a7acd8701df6fc341c0d179f1c62c982",
+  "model_subfolder": "multilingual",
+  "rendering": {"max_len": 1024, "head_max_len": 768},
+  "calibration": {"partition": "calibration", "objective": "hard_label_nll", "per_type": true, "buckets": false, "temperature_range": [0.5, 5.0]},
+  "policy": {
+    "partition": "policy",
+    "score": "max_calibrated_probability",
+    "thresholds": [0.0, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.925, 0.95, 0.975, 0.99],
+    "max_error": 0.05,
+    "min_coverage": 0.5,
+    "family_alpha": 0.05,
+    "max_model_candidates": 4,
+    "alpha_per_candidate": 0.0125,
+    "selection_rule": "qualifying model with greatest minimum accepted fraction over required languages; ties use candidate order"
+  },
+  "training_common": {"batch_size": 1, "grad_accum": 32, "learning_rate": 0.0001, "encoder_learning_rate": 0.00002, "weight_decay": 0.01, "max_grad_norm": 1.0, "seed": 42, "checkpoint_every": 25},
+  "candidates": [
+    {"id": "base", "train_encoder": false, "epochs": 0},
+    {"id": "head-1epoch", "train_encoder": false, "epochs": 1},
+    {"id": "encoder-1epoch", "train_encoder": true, "epochs": 1},
+    {"id": "encoder-3epoch", "train_encoder": true, "epochs": 3}
+  ],
+  "candidate_initialization": "each training candidate starts from the pinned base; later candidates are optional if an earlier candidate qualifies",
+  "baseline": "training-only class-frequency distribution with add-one smoothing; descriptive, not deployable",
+  "final_test": "evaluate the locked selected model and thresholds once; never use results to select another candidate",
+  "failure_rule": "no qualifying candidate means no automatic deployment; retain explicit review outcomes and report the failed gate",
+  "limitations": ["English and first Modern Standard Arabic variant only", "no ordinal urgency or boolean gold tasks", "unknown base-pretraining exposure", "no guarantee for future distribution shift"]
+}
