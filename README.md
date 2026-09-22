@@ -427,6 +427,8 @@ reproducible partitions for training, calibration, policy selection and final te
 The opt-in [local supervised runner](docs/adaptation_training.md) resumes weights,
 optimizer, scheduler and random state from a verified checkpoint. Its exports
 clear inherited calibration and remain compatible with the prediction SDK.
+Use [independent evaluation and bound calibration](docs/adaptation_evaluation.md)
+for resumable logit collection and held-out temperature fitting.
 
 Fine-tune Laya on your own domain data. The notebook runs on Kaggle's free 2xT4 GPUs and does
 the whole loop: build the dataset, train with RLCD (proper-scoring-rule rewards, GRPO-style
