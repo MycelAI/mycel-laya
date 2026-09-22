@@ -60,6 +60,20 @@ The selection procedure allocates the 5% family error probability across four
 possible model candidates, language slices, thresholds and the two bounds. Unused
 candidate slots do not increase the available error probability.
 
+The candidate recipe verifies the pinned base files (or the complete training-run
+lineage for an adapted export), collects only calibration and policy partitions,
+fits temperatures, computes independent policy metrics, and tests the fixed grid:
+
+```shell
+python research/scripts/evaluate_adaptation_candidate.py --protocol research/arbanking77_protocol.json --candidate base --dataset prepared-arbanking77 --model local-multilingual --output runs/base-evaluation
+```
+
+For a trained candidate, use its declared ID and the runner's `export/` directory.
+`--resume` verifies and reuses saved inference chunks. The resulting report binds
+the protocol, checkpoint, calibration and prediction artifacts. It includes a
+training-only add-one-smoothed class-frequency baseline. The recipe never opens
+the final test for inference and never publishes a deployment automatically.
+
 Training candidates start independently from the pinned multilingual checkpoint.
 Later candidates need not run if an earlier one qualifies. Neither repeated
 final-test attempts nor replacing a failed model using final-test results is part
