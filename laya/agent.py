@@ -208,14 +208,22 @@ class Agent:
         self.temperature = [clamp_temperature(t) for t in self.temperature_raw]
         self.temperature_by_options = {k: clamp_temperature(v)
                                        for k, v in self.temperature_by_options_raw.items()}
-        rejected = ["%s=%.4g" % (k, float(v)) for k, v in self.temperature_by_options_raw.items()
-                    if clamp_temperature(v) != float(v)]
-        rejected += ["temperature[%d]=%.4g" % (i, float(t)) for i, t in enumerate(self.temperature_raw)
-                     if clamp_temperature(t) != float(t)]
+        entries = [(k, v, self.temperature_by_options[k]) for k, v in self.temperature_by_options_raw.items()]
+        entries += [("temperature[%d]" % i, t, self.temperature[i]) for i, t in enumerate(self.temperature_raw)]
+        rejected = []
+        for name, raw, applied in entries:
+            try:
+                if float(raw) == applied:
+                    continue
+            except (TypeError, ValueError):
+                # Invalid entries already have a neutral fallback; diagnostics must not
+                # repeat the failed conversion or prevent the checkpoint from loading.
+                pass
+            rejected.append("%s=%r -> %g" % (name, raw, applied))
         if rejected:
             warnings.warn(
-                "laya: this checkpoint ships temperatures outside [%g, %g] which would distort "
-                "confidence; clamping %s. Treat confidence from the affected buckets as uncalibrated."
+                "laya: this checkpoint ships invalid temperatures or values outside [%g, %g]; "
+                "using %s. Treat confidence from the affected entries as uncalibrated."
                 % (TEMP_MIN, TEMP_MAX, ", ".join(rejected)),
                 RuntimeWarning, stacklevel=2)
         self.dtype = amp_dtype(self.cfg.get("amp_dtype", "fp16"))

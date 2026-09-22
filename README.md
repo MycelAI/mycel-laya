@@ -357,6 +357,13 @@ option count) on held-out data moves mean ECE **0.466 -> 0.081** (`laya`) and
 **0.314 -> 0.106** (`laya-multilingual`). `laya-multilingual` ships with no fitted
 temperatures at all, so fit them before relying on its probabilities.
 
+At checkpoint load, numeric temperature entries are clamped to `[0.5, 5.0]`; invalid or
+non-finite entries use the neutral fallback `1.0`. A runtime warning reports the affected
+entries and applied values. Bucket-specific temperatures still take precedence over per-type
+values, including when a bucket uses the fallback. Raw values remain available in
+`agent.temperature_raw` and `agent.temperature_by_options_raw`. A fallback prevents a loading
+failure; it does not establish calibrated confidence.
+
 ### Honest limits
 
 * **The base checkpoints are near chance on typed-decisions zero-shot** -- 0.362 and 0.352
