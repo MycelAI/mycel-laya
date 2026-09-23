@@ -106,6 +106,13 @@ the protocol, checkpoint, calibration and prediction artifacts. It includes a
 training-only add-one-smoothed class-frequency baseline. The recipe never opens
 the final test for inference and never publishes a deployment automatically.
 
+The prepared dataset keeps all partitions in one `records.jsonl` file. Loading it
+validates every row and target, including reserved test rows, against the split
+manifest. Candidate training and evaluation then select their declared partitions;
+test predictions and test-derived metrics are excluded from candidate selection.
+The test labels are therefore held out from model and policy decisions, rather
+than stored in a separate unread file.
+
 Training candidates start independently from the pinned multilingual checkpoint.
 Later candidates need not run if an earlier one qualifies. Neither repeated
 final-test attempts nor replacing a failed model using final-test results is part
@@ -272,8 +279,9 @@ in both languages.
 
 At confidence 0.5, English accepted 38.77% of examples with 27.75% observed error;
 Arabic accepted 10.01% with 45.95% observed error. The simultaneous bounds also
-failed. Finalization recorded `head_not_qualified`, left the final test unopened
-and preserved the encoder-training fallback. Deployment measurement was skipped.
+failed. Finalization recorded `head_not_qualified`, performed no final-test
+inference, and preserved the encoder-training fallback. Deployment measurement
+was skipped.
 The unchanged production coordinator independently replayed the completed
 base-plus-head prefix and refused to freeze a selection, creating no final artifacts.
 This head-only run does not establish useful automation. Its small accuracy
