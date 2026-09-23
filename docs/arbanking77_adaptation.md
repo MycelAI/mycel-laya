@@ -244,6 +244,16 @@ report and both derived checksums, preserves the original calibration and metric
 and passes the unchanged replay checks. Final selection still correctly refuses
 the failed baseline. This is evidence about numerical replay, not model accuracy.
 
+The head-only candidate completed its one training epoch on 2026-09-22. Its
+[training audit](../research/results/arbanking77_head_training_20260922.json)
+records 438 optimizer updates over all 13,988 training examples, the completed
+checkpoint and export hashes, and preservation of the pinned base files. The
+export's configuration and temperature tensor both contain `[1, 1, 1]`, with
+an empty bucket-override map and `unfitted` calibration status. This verifies
+training completion and export consistency. It provides no held-out accuracy or
+automation result; the export still requires calibration, policy qualification
+and independent final evaluation before it can become a qualified deployment.
+
 A CPU pilot used four training-only examples from two source families, the actual
 322M multilingual checkpoint, and the complete 77-option schema. All option text
 remained distinct and untruncated at `max_len=1024`, `head_max_len=768`. On the

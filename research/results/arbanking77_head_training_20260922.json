@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "stage": "completed_training_audit",
+  "experiment": "arbanking77-en-msa-v1",
+  "candidate": "head-1epoch",
+  "protocol_sha256": "aa91e979f2bab93dabb4e8f00ec246de25cd3bf0e2c6e25266aee8514a1d0f9c",
+  "dataset_manifest_sha256": "d0035dba6987ebf5c69a223013e4ed57fe8bf44d64716dc24e1bc53ca62b58e0",
+  "training_source_commit": "7b1d100820ca21e55f40273bde7142ebb20f134d",
+  "completed_utc": "2026-09-22T22:48:57.477196+00:00",
+  "verified_utc": "2026-09-22T23:03:58.532945+00:00",
+  "training_status": "complete",
+  "training_exit_code": 0,
+  "progress": {
+    "epoch": 1,
+    "cursor": 0,
+    "updates": 438,
+    "examples_seen": 13988
+  },
+  "train_items": 13988,
+  "run_sha256": "a60b5c036f6928fa0b1c1d75ff5ac713cdea11bd94ddf4f6a031d87e278d4c4c",
+  "checkpoint_sha256": "3ed1228f39a6e8090f3412d61bab4fc87e7b2cf2e0eba055b112d7c0be995535",
+  "export_manifest_sha256": "65237ead8598ac8679c52eb4e15db916553e5ddd8183706409d2caceeeab51c2",
+  "verified_export_files": {
+    "encoder/config.json": "fad4076bcae03044a509e35a2d36c1cdff482fd4c2d6e7c5d187bbc7d8b91590",
+    "model.safetensors": "d5c38f43a85d5f7c69b42a8dcc4f9f20fecc2ad87f1f940f28f122c7040ba5bb",
+    "rl_agent_config.json": "305963d07afd4ee40e01f84e8cba17a1ad0218453cec2329dfb2791a8439ac37",
+    "tokenizer/tokenizer.json": "609d8f4c067cd3950f88594c5a802616cea245823836ef5848ee4fc40aab5b6f",
+    "tokenizer/tokenizer_config.json": "e8e6a37c189f9dd23976b86b3e1ddb6928472e9f87c94103a1aaff311f45f090"
+  },
+  "verified_preserved_base_files": {
+    "encoder/config.json": "83f6916d13ef0f556ac461f28308dc2bffa7ebeadee8ec9e2db5812020ea5bb4",
+    "model.safetensors": "9d628fd971b700382ac6f65920a86f149777b2e748e0c955fb3b19695aa8f204",
+    "rl_agent_config.json": "25061739243b617ad88d1219ba6f8a9c86c5881ca28df024fa2d9b3b2fcc30c6",
+    "tokenizer/tokenizer.json": "609d8f4c067cd3950f88594c5a802616cea245823836ef5848ee4fc40aab5b6f",
+    "tokenizer/tokenizer_config.json": "6c6b2d8e3c84ce0e671c129cd6b374b235d6f9863042a5836358d00a89bbb5a1"
+  },
+  "temperature": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "temperature_by_options": {},
+  "model_temperature_tensor": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "calibration_status": "unfitted",
+  "audit_passed": true,
+  "audit_receipt_sha256": "afb55612843cda28b3fb840c23fed3b352354525cfda93db4429490945b1c58a",
+  "audit_helper_sha256": "9e25fe8263946c39ccb84f4143cc16c8824ddb4a4dfdf47de4b0f41da3ab4789",
+  "scope": "Completed training metadata, checkpoint and export file hashes, base-file preservation and neutral-calibration audit.",
+  "held_out_quality_measurement_included": false,
+  "deployment_qualification_established": false,
+  "limitations": [
+    "Completing training does not establish accuracy, useful automation, calibrated probabilities or a qualified deployment",
+    "Temperatures remain neutral and unfitted; separate calibration and independent policy evaluation are required",
+    "The published values describe the completed training audit, not a final-test result or serving benchmark",
+    "No weights, source examples or prediction-level records are included in this aggregate result"
+  ]
+}
