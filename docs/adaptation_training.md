@@ -4,7 +4,7 @@
 of a [prepared labelled dataset](adaptation_data.md). It uses supervised hard-label
 cross-entropy for choice, score and noul questions. It does not implement the
 notebook's RLCD objective, train the action head, fit temperatures, or establish a
-safe automation rate. Existing SDK calls and checkpoints are unchanged.
+safe automation rate. Existing SDK inference calls and model assets are unchanged.
 
 Supply a complete local checkpoint: `model.safetensors`, `rl_agent_config.json`,
 `encoder/config.json` and the `tokenizer` directory. The runner performs no Hub
@@ -33,7 +33,7 @@ meaning of a task. The ordinary SDK's existing truncation behavior is unchanged.
 
 ## Recovery contract
 
-The run directory contains `run.json`, `checkpoint.pt`, `.run.lock` and
+The run directory contains `run.json`, `checkpoint.safetensors`, `.run.lock` and
 `result.json`. Only a completed run publishes `export/`. Existing directories
 require `--resume`; a new run never overwrites another run.
 
@@ -52,10 +52,12 @@ requested `--max-updates` stop also save. `--max-updates` limits additional upda
 in that invocation without changing the planned learning-rate schedule.
 
 Writes stage a file beside its destination, flush it and atomically replace the
-previous checkpoint. A kernel lock prevents simultaneous writers and releases on
-process death. These are local-filesystem guarantees, not a distributed locking
-or arbitrary network-filesystem durability protocol. Only load training state
-from trusted runs; loading uses PyTorch's `weights_only=True` mode.
+previous checkpoint. Tensors use safetensors; the remaining structure is tagged,
+validated JSON metadata. A kernel lock prevents simultaneous writers and releases
+on process death. These are local-filesystem guarantees, not a distributed locking
+or arbitrary network-filesystem durability protocol. Runs created with the earlier
+`checkpoint.pt` format must be resumed with their original pinned source snapshot;
+this runner does not silently convert them.
 
 ## Export and calibration
 

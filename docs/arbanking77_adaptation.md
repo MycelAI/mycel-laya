@@ -154,6 +154,12 @@ interrupted candidate evaluation by adding `--resume` to its original evaluation
 command. Training completion alone does not qualify a candidate; the independent
 policy report must pass before selection and final testing.
 
+The original CPU qualification run is pinned to source commit
+`ef79fc5137f85f7e03e78b5aebabd1a0bc5cccd0`. Its run identity and resume
+path remain on that source snapshot. The subsequent safetensors training-checkpoint
+change applies to new runs; a new checkout must not be substituted into the
+frozen run or its evidence.
+
 ## Freeze selection and finalize
 
 The coordinator accepts a completed prefix of the candidate sequence: for

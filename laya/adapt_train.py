@@ -14,6 +14,8 @@ import numpy as np
 import torch
 import tokenizers
 import transformers
+from safetensors import safe_open
+from safetensors.torch import save_file
 
 from .adapt_data import fingerprint, read_dataset
 from .adapt_model import checkpoint_files, export_uncalibrated, file_sha256, forward_batch, load_local_checkpoint, prepare_items
@@ -77,20 +79,119 @@ def _run_lock(directory):
                 fcntl.flock(lock, fcntl.LOCK_UN)
 
 
-def _atomic_save(value, destination, *, tensor=False):
+def _atomic_save(value, destination):
     destination = Path(destination)
     fd, name = tempfile.mkstemp(prefix=".checkpoint-", dir=destination.parent)
     try:
         with os.fdopen(fd, "wb") as stream:
-            if tensor:
-                torch.save(value, stream)
-            else:
-                stream.write((json.dumps(value, indent=2, allow_nan=False) + "\n").encode("utf-8"))
+            stream.write((json.dumps(value, indent=2, allow_nan=False) + "\n").encode("utf-8"))
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(name, destination)
     finally:
         Path(name).unlink(missing_ok=True)
+
+
+def _encode_checkpoint(value, tensors):
+    """Store tensor values separately from a strictly tagged JSON structure."""
+    if isinstance(value, torch.Tensor):
+        name = "tensor_%08d" % len(tensors)
+        tensors[name] = value.detach().cpu().contiguous()
+        return {"type": "tensor", "name": name}
+    if isinstance(value, np.generic):
+        return _encode_checkpoint(value.item(), tensors)
+    if isinstance(value, dict):
+        return {"type": "dict", "items": [[_encode_checkpoint(key, tensors), _encode_checkpoint(item, tensors)]
+                                          for key, item in value.items()]}
+    if isinstance(value, list):
+        return {"type": "list", "items": [_encode_checkpoint(item, tensors) for item in value]}
+    if isinstance(value, tuple):
+        return {"type": "tuple", "items": [_encode_checkpoint(item, tensors) for item in value]}
+    if value is None:
+        return {"type": "null"}
+    if type(value) is bool:
+        return {"type": "bool", "value": value}
+    if type(value) is int:
+        return {"type": "int", "value": value}
+    if type(value) is float and math.isfinite(value):
+        return {"type": "float", "value": value}
+    if type(value) is str:
+        return {"type": "str", "value": value}
+    raise ValueError("unsupported training state value: %s" % type(value).__name__)
+
+
+def _decode_checkpoint(value, tensors, used, *, depth=0):
+    if depth > 64 or type(value) is not dict or type(value.get("type")) is not str:
+        raise ValueError("invalid checkpoint structure")
+    kind = value["type"]
+    if kind == "tensor":
+        if set(value) != {"type", "name"} or type(value["name"]) is not str or value["name"] in used:
+            raise ValueError("invalid checkpoint tensor reference")
+        used.add(value["name"])
+        if value["name"] not in tensors:
+            raise ValueError("missing checkpoint tensor")
+        return tensors[value["name"]]
+    if kind in ("dict", "list", "tuple"):
+        if set(value) != {"type", "items"} or type(value["items"]) is not list:
+            raise ValueError("invalid checkpoint container")
+        if kind == "dict":
+            result = {}
+            for pair in value["items"]:
+                if type(pair) is not list or len(pair) != 2:
+                    raise ValueError("invalid checkpoint mapping")
+                key = _decode_checkpoint(pair[0], tensors, used, depth=depth + 1)
+                if key in result:
+                    raise ValueError("duplicate checkpoint mapping key")
+                result[key] = _decode_checkpoint(pair[1], tensors, used, depth=depth + 1)
+            return result
+        items = [_decode_checkpoint(item, tensors, used, depth=depth + 1) for item in value["items"]]
+        return tuple(items) if kind == "tuple" else items
+    if kind == "null":
+        if set(value) != {"type"}:
+            raise ValueError("invalid checkpoint null")
+        return None
+    if set(value) != {"type", "value"}:
+        raise ValueError("invalid checkpoint scalar")
+    scalar = value["value"]
+    if (kind == "bool" and type(scalar) is bool) or (kind == "int" and type(scalar) is int) or (
+            kind == "float" and type(scalar) is float and math.isfinite(scalar)) or (
+            kind == "str" and type(scalar) is str):
+        return scalar
+    raise ValueError("invalid checkpoint scalar")
+
+
+def _save_checkpoint(state, destination):
+    destination = Path(destination)
+    tensors = {}
+    structure = _encode_checkpoint(state, tensors)
+    if not tensors:
+        raise ValueError("checkpoint has no tensors")
+    fd, name = tempfile.mkstemp(prefix=".checkpoint-", suffix=".safetensors", dir=destination.parent)
+    os.close(fd)
+    try:
+        save_file(tensors, name, metadata={"format_version": "2",
+                                            "structure": json.dumps(structure, allow_nan=False, separators=(",", ":"))})
+        with open(name, "rb+") as stream:
+            os.fsync(stream.fileno())
+        os.replace(name, destination)
+    finally:
+        Path(name).unlink(missing_ok=True)
+
+
+def _load_checkpoint(path):
+    with safe_open(str(path), framework="pt", device="cpu") as checkpoint:
+        metadata = checkpoint.metadata() or {}
+        if metadata.get("format_version") != "2" or type(metadata.get("structure")) is not str:
+            raise ValueError("unsupported training checkpoint format")
+        if len(metadata["structure"]) > 4_000_000:
+            raise ValueError("checkpoint structure is too large")
+        structure = json.loads(metadata["structure"])
+        tensors = {name: checkpoint.get_tensor(name).clone() for name in checkpoint.keys()}
+    used = set()
+    state = _decode_checkpoint(structure, tensors, used)
+    if used != set(tensors) or type(state) is not dict:
+        raise ValueError("checkpoint tensor inventory differs")
+    return state
 
 
 def _rng_state(device):
@@ -135,8 +236,8 @@ def train(dataset_dir, model_dir, run_dir, *, config=None, device="cpu", resume=
     if max_updates is not None and (type(max_updates) is not int or max_updates < 1):
         raise ValueError("max_updates must be a positive integer")
     run_dir = Path(run_dir)
-    if resume and not (run_dir / "checkpoint.pt").is_file():
-        raise FileNotFoundError("resume requires an existing checkpoint.pt")
+    if resume and not (run_dir / "checkpoint.safetensors").is_file():
+        raise FileNotFoundError("resume requires an existing checkpoint.safetensors")
     if not resume and run_dir.exists():
         raise FileExistsError("run directory already exists; use resume or choose a new directory")
     questions, rows, manifest = read_dataset(dataset_dir)
@@ -186,8 +287,8 @@ def train(dataset_dir, model_dir, run_dir, *, config=None, device="cpu", resume=
         if checkpoint.device.type == "cuda":
             torch.cuda.manual_seed_all(config.seed)
         if resume:
-            state = torch.load(run_dir / "checkpoint.pt", map_location="cpu", weights_only=True)
-            if (type(state.get("format_version")) is not int or state["format_version"] != 1
+            state = _load_checkpoint(run_dir / "checkpoint.safetensors")
+            if (type(state.get("format_version")) is not int or state["format_version"] != 2
                     or fingerprint(state["identity"]) != fingerprint(identity)):
                 raise ValueError("training checkpoint does not match the frozen run identity")
             model.load_state_dict(state["model"], strict=True)
@@ -201,10 +302,10 @@ def train(dataset_dir, model_dir, run_dir, *, config=None, device="cpu", resume=
             _atomic_save(identity, run_dir / "run.json")
 
         def save():
-            _atomic_save({"format_version": 1, "identity": identity, "model": model.state_dict(),
-                          "optimizer": optimizer.state_dict(), "scheduler": scheduler.state_dict(),
-                          "rng": _rng_state(checkpoint.device), "progress": progress},
-                         run_dir / "checkpoint.pt", tensor=True)
+            _save_checkpoint({"format_version": 2, "identity": identity, "model": model.state_dict(),
+                              "optimizer": optimizer.state_dict(), "scheduler": scheduler.state_dict(),
+                              "rng": _rng_state(checkpoint.device), "progress": progress},
+                             run_dir / "checkpoint.safetensors")
 
         if not resume:
             save()

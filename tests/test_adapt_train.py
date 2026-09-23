@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import torch  # noqa: E402
+from safetensors import safe_open  # noqa: E402
 from safetensors.torch import load_file, save_file  # noqa: E402
 from tokenizers import Tokenizer  # noqa: E402
 from tokenizers.models import WordLevel  # noqa: E402
@@ -26,7 +27,7 @@ from transformers import BertConfig, BertModel, PreTrainedTokenizerFast  # noqa:
 from laya import load  # noqa: E402
 from laya.adapt_data import write_dataset  # noqa: E402
 from laya.adapt_model import checkpoint_files, collect_logits, load_local_checkpoint, prepare_input, prepare_items  # noqa: E402
-from laya.adapt_train import TrainingConfig, _atomic_save, _run_lock, train  # noqa: E402
+from laya.adapt_train import TrainingConfig, _load_checkpoint, _run_lock, _save_checkpoint, train  # noqa: E402
 from laya.common import DecisionModel  # noqa: E402
 
 
@@ -97,8 +98,8 @@ class AdaptTrainTests(unittest.TestCase):
         self.assertFalse((self.root / "resumed" / "export").exists())
         continued = self.run_training("resumed", resume=True)
         self.assertEqual(full, continued)
-        first = torch.load(self.root / "full" / "checkpoint.pt", weights_only=True)
-        second = torch.load(self.root / "resumed" / "checkpoint.pt", weights_only=True)
+        first = _load_checkpoint(self.root / "full" / "checkpoint.safetensors")
+        second = _load_checkpoint(self.root / "resumed" / "checkpoint.safetensors")
         self.assert_state_equal(first, second)
         self.assertEqual(checkpoint_files(self.root / "full" / "export"),
                          checkpoint_files(self.root / "resumed" / "export"))
@@ -152,7 +153,7 @@ class AdaptTrainTests(unittest.TestCase):
 
     def test_full_encoder_training_is_supported(self):
         self.run_training("all", config=replace(self.settings, train_encoder=True), max_updates=1)
-        state = torch.load(self.root / "all" / "checkpoint.pt", weights_only=True)
+        state = _load_checkpoint(self.root / "all" / "checkpoint.safetensors")
         original = load_file(str(self.model_dir / "model.safetensors"))
         self.assertTrue(any(not torch.equal(value, state["model"][key]) for key, value in original.items()
                             if key.startswith("encoder.")))
@@ -171,8 +172,8 @@ class AdaptTrainTests(unittest.TestCase):
         micro = replace(single, batch_size=1, grad_accum=count + 1)
         self.run_training("single", config=single)
         self.run_training("micro", config=micro)
-        first = torch.load(self.root / "single" / "checkpoint.pt", weights_only=True)
-        second = torch.load(self.root / "micro" / "checkpoint.pt", weights_only=True)
+        first = _load_checkpoint(self.root / "single" / "checkpoint.safetensors")
+        second = _load_checkpoint(self.root / "micro" / "checkpoint.safetensors")
         self.assertEqual(first["progress"]["updates"], 1)
         for key, value in first["optimizer"]["state"].items():
             torch.testing.assert_close(value["exp_avg"], second["optimizer"]["state"][key]["exp_avg"],
@@ -215,22 +216,48 @@ class AdaptTrainTests(unittest.TestCase):
 
     def test_resume_rejects_inconsistent_cursor_and_scheduler(self):
         self.run_training("run", max_updates=1)
-        path = self.root / "run" / "checkpoint.pt"
-        state = torch.load(path, weights_only=True)
+        path = self.root / "run" / "checkpoint.safetensors"
+        state = _load_checkpoint(path)
         state["progress"]["cursor"] += 1
-        torch.save(state, path)
+        _save_checkpoint(state, path)
         with self.assertRaisesRegex(ValueError, "optimizer boundary"):
             self.run_training("run", resume=True)
 
     def test_failed_atomic_save_preserves_last_checkpoint(self):
-        path = self.root / "state.pt"
-        _atomic_save({"old": 1}, path, tensor=True)
+        path = self.root / "state.safetensors"
+        _save_checkpoint({"old": torch.ones(1)}, path)
         original = path.read_bytes()
-        with patch("laya.adapt_train.torch.save", side_effect=OSError("disk full")):
+        with patch("laya.adapt_train.save_file", side_effect=OSError("disk full")):
             with self.assertRaisesRegex(OSError, "disk full"):
-                _atomic_save({"new": 2}, path, tensor=True)
+                _save_checkpoint({"new": torch.zeros(1)}, path)
         self.assertEqual(path.read_bytes(), original)
         self.assertFalse(list(self.root.glob(".checkpoint-*")))
+
+    def test_checkpoint_uses_validated_tensor_and_json_format(self):
+        path = self.root / "state.safetensors"
+        value = {"weights": torch.arange(3), "position": (1, 2), "optimizer": {0: {"step": 4}}}
+        _save_checkpoint(value, path)
+        with safe_open(str(path), framework="pt", device="cpu") as file:
+            metadata = file.metadata()
+            self.assertEqual(metadata["format_version"], "2")
+            self.assertEqual(len(file.keys()), 1)
+            self.assertEqual(json.loads(metadata["structure"])["type"], "dict")
+        self.assert_state_equal(_load_checkpoint(path), value)
+
+    def test_checkpoint_rejects_changed_structure_and_extra_tensors(self):
+        path = self.root / "state.safetensors"
+        _save_checkpoint({"weights": torch.arange(3)}, path)
+        with safe_open(str(path), framework="pt", device="cpu") as file:
+            metadata = file.metadata()
+        tensors = {key: value.clone() for key, value in load_file(str(path)).items()}
+        save_file(tensors, str(path), metadata={**metadata, "structure": '{"type":"unknown"}'})
+        with self.assertRaisesRegex(ValueError, "invalid checkpoint scalar"):
+            _load_checkpoint(path)
+        metadata["structure"] = json.dumps({"type": "tensor", "name": "tensor_00000000"})
+        tensors["extra"] = torch.zeros(1)
+        save_file(tensors, str(path), metadata=metadata)
+        with self.assertRaisesRegex(ValueError, "inventory differs"):
+            _load_checkpoint(path)
 
     def test_process_death_releases_run_lock(self):
         script = ("from laya.adapt_train import _run_lock; import sys; "
