@@ -299,8 +299,27 @@ records a completed CPU run on 2026-09-23: 438 optimizer updates over all
 13,988 training examples. The independent audit verified the checkpoint and
 export hashes, preserved base files, finite exported tensors and neutral,
 unfitted temperatures. This establishes training and export integrity only.
-Calibration and independent policy evaluation are still required before this
-candidate can be selected; the final test remains sealed.
+
+The [audited one-epoch encoder policy result](../research/results/arbanking77_encoder1_policy_20260923.json)
+completed on 2026-09-23 with 3,034 calibration records and 1,478 independent
+policy representatives per language. The choice temperature was 1.036056, with
+no bucket overrides. Calibrated intent accuracy on the policy split was 84.57%
+for English and 82.21% for Modern Standard Arabic. Accuracy is higher than
+the head-only candidate on this split, but the fixed
+selective-decision gate did **not** pass across both languages.
+
+| Policy slice and threshold | Accepted / 1,478 | Errors | Error upper bound | Coverage lower bound | Gate |
+| --- | ---: | ---: | ---: | ---: | --- |
+| English, 0.925 | 896 | 20 | 4.49% | 56.13% | Pass |
+| Arabic, 0.925 | 815 | 23 | 5.42% | 50.60% | Error bound fails |
+| Arabic, 0.950 | 729 | 16 | 4.75% | 44.79% | Coverage bound fails |
+
+English had two qualifying thresholds; Arabic had none in the frozen grid.
+The policy auditor reproduced calibration, metrics and all threshold counts,
+and a separate CPU replay and high-precision binomial-bound check agreed with
+the saved report. Finalization recorded `encoder_not_qualified` and opened no
+final-test or bundle artifacts. The declared three-epoch encoder candidate is
+the remaining slot; it starts from the pinned base rather than this checkpoint.
 
 A CPU pilot used four training-only examples from two source families, the actual
 322M multilingual checkpoint, and the complete 77-option schema. All option text
@@ -313,8 +332,8 @@ are not deployment throughput estimates.
 
 That pilot establishes execution and recovery only. It does not establish
 accuracy, calibration improvement, or an achievable automation rate. The separate
-baseline results above do not establish useful adapted-model automation. Full
-adaptation and independent evaluation are still required. Synthetic CPU tests
+baseline results above do not establish useful adapted-model automation. The
+three-epoch candidate and its independent evaluation remain pending. Synthetic CPU tests
 can be run separately without obtaining the corpus or pretrained weights:
 
 ```shell
