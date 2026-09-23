@@ -1,0 +1,12 @@
+title = "Laya secret scanning"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Pinned tokenizer asset SHA-256 digests in the ArBanking77 protocol and result receipts"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['^research/(?:arbanking77_protocol\.json|results/arbanking77_[^/]+\.json)$']
+regexTarget = "line"
+regexes = ['^\s*"tokenizer/(?:tokenizer|tokenizer_config)\.json": "[a-f0-9]{64}",?\s*$']
