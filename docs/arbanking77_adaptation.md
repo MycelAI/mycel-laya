@@ -251,8 +251,43 @@ checkpoint and export hashes, and preservation of the pinned base files. The
 export's configuration and temperature tensor both contain `[1, 1, 1]`, with
 an empty bucket-override map and `unfitted` calibration status. This verifies
 training completion and export consistency. It provides no held-out accuracy or
-automation result; the export still requires calibration, policy qualification
-and independent final evaluation before it can become a qualified deployment.
+automation result; the subsequent policy evaluation below measures that candidate.
+
+The [audited head-only policy result](../research/results/arbanking77_head_policy_20260923.json)
+completed on 2026-09-23 with 3,034 calibration examples and 1,478 independent
+policy representatives per language. The fitted choice temperature was 0.987064,
+with no bucket overrides. Every threshold in the fixed grid failed to qualify
+in both languages.
+
+| Policy slice | Intent accuracy, raw and calibrated | NLL, raw / calibrated | ECE (15 bins), raw / calibrated |
+| --- | ---: | ---: | ---: |
+| English | 47.83% | 2.203 / 2.202 | 0.040 / 0.033 |
+| Modern Standard Arabic | 21.38% | 3.353 / 3.356 | 0.047 / 0.051 |
+
+At confidence 0.5, English accepted 38.77% of examples with 27.75% observed error;
+Arabic accepted 10.01% with 45.95% observed error. The simultaneous bounds also
+failed. Finalization recorded `head_not_qualified`, left the final test unopened
+and preserved the encoder-training fallback. Deployment measurement was skipped.
+The unchanged production coordinator independently replayed the completed
+base-plus-head prefix and refused to freeze a selection, creating no final artifacts.
+This head-only run does not establish useful automation. Its small accuracy
+differences from the baseline have not been tested for statistical significance.
+Temperature fitting changed probabilities, not argmax accuracy, and slightly
+worsened Arabic policy NLL and ECE: fitting on calibration data does not guarantee
+improvement in every held-out metric or language.
+
+To shorten collection, Linux collected calibration and Windows collected policy
+predictions from the identical trained export. Partition ownership was declared
+before policy completion. Model/data/rendering bindings, library versions,
+implementation hashes, batch size and chunk size matched. After all chunks and
+dataset membership were verified, the unchanged candidate recipe resumed on Linux
+with zero new forward calls and preserved the canonical prediction artifacts.
+All temperature fitting, metrics and threshold selection ran on Linux; a separate
+audit reproduced them and independently checked every threshold's accepted/error
+counts. The aggregate result retains the source-receipt hashes. This verifies
+collection provenance and numerical replay, not same-input Windows/Linux serving
+parity or real-bundle performance. The next declared encoder candidate still
+requires its own completed training and independent policy evaluation.
 
 A CPU pilot used four training-only examples from two source families, the actual
 322M multilingual checkpoint, and the complete 77-option schema. All option text
