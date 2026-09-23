@@ -566,7 +566,6 @@ class Agent(HookRegistry):
             p = np.exp(z - z.max())
             p = p / p.sum()
 
-            conf_score = round(confidence_from_probs(p, k), 4)
             ext = {"act_probability": round(float(act[r, 0]), 4)}
 
             if q["t"] == "choice":
@@ -575,7 +574,7 @@ class Agent(HookRegistry):
                     "type": "choice",
                     "choice": keys[int(p.argmax())],
                     "probabilities": {kk: round(float(v), 4) for kk, v in zip(keys, p)},
-                    "confidence": conf_score,
+                    "confidence": round(confidence_from_probs(p, k), 4),
                     "action": ext,
                 }
             elif q["t"] == "score":
@@ -585,7 +584,7 @@ class Agent(HookRegistry):
                     "score": round(exp_score, 4),
                     "legend": {str(i): c for i, c in enumerate(q["crit"])},
                     "probabilities": {str(i): round(float(v), 4) for i, v in enumerate(p)},
-                    "confidence": conf_score,
+                    "confidence": round(confidence_from_probs(p, k), 4),
                     "action": ext,
                 }
             else:
