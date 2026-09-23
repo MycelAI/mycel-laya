@@ -91,6 +91,103 @@ def make_fake():
     return fake
 
 
+# --------------------------------------------------------------- length grouping and restoration
+def make_length_fake():
+    fake = make_fake()
+    fake.encoded = []
+    fake.batch_rows = []
+    fake.slots = 0
+    fake.encoded_at_forward = []
+
+    def encode(state, ids, internal, **overrides):
+        fake.encoded.append(state)
+        limit = overrides.get("max_len", 100)
+        # Question rows have different lengths; sorting must use the longest.
+        return [{"ids": [state["id"] + 1] * min(limit, size), "markers": [0, 1], "qtype": 2}
+                for size in (3, state["length"])]
+
+    def forward(batch):
+        fake.slots += batch["input_ids"].numel()
+        fake.batch_rows.append(batch["input_ids"][:, 0].tolist())
+        fake.encoded_at_forward.append(len(fake.encoded))
+        return batch["input_ids"][:, :1].numpy(), None
+
+    def decode(logits, act, items, ids, internal, offset):
+        return {qid: int(logits[offset + i, 0]) - 1 for i, qid in enumerate(ids)}
+
+    fake._encode_state = encode
+    fake._forward = forward
+    fake._decode_answers = decode
+    return fake
+
+
+states = [{"id": i, "length": [40, 5, 25, 8][i % 4]} for i in range(37)]
+plain, grouped = make_length_fake(), make_length_fake()
+expected = plain.predict_batch(states, QUESTIONS, batch_size=2)
+events = []
+actual = grouped.predict_batch(states, QUESTIONS, batch_size=2, sort_by_length=True,
+                               on_predict_end=lambda ctx: events.append((ctx.results, ctx.usage)))
+check("length/answers and usage retain input order across windows", actual, expected)
+check("length/each state encoded once in input order", grouped.encoded, states)
+check_true("length/grouping reduces padded slots", grouped.slots < plain.slots)
+check("length/same number of forward passes", len(grouped.batch_rows), len(plain.batch_rows))
+check_true("length/batch size caps all forward passes", all(len(rows) <= 4 for rows in grouped.batch_rows))
+check("length/partial final batch", len(grouped.batch_rows[-1]), 2)
+check("length/first forward buffers at most eight batches", grouped.encoded_at_forward[0], 16)
+check("length/end hook sees restored results", events[0][0], expected)
+check("length/end hook usage excludes padding", events[0][1]["input_tokens"],
+      sum(3 + st["length"] for st in states))
+check("length/does not mutate caller states", [st["id"] for st in states], list(range(37)))
+
+# A hook may replace both inputs and the length budget before grouping occurs.
+def rewrite_length_inputs(ctx):
+    ctx.states = states
+    ctx.max_len = 10
+
+
+rewritten = make_length_fake().predict_batch(["unused"], QUESTIONS, batch_size=2,
+                                            sort_by_length=True, on_predict_start=rewrite_length_inputs)
+reference = make_length_fake().predict_batch(states, QUESTIONS, batch_size=2, max_len=10)
+check("length/hook rewrites and truncation budgets precede sorting", rewritten, reference)
+
+for batch_size in (None, 0, -1, 1, 100):
+    plain, grouped = make_length_fake(), make_length_fake()
+    check("length/no-op results for batch_size=%r" % batch_size,
+          grouped.predict_batch(states, QUESTIONS, batch_size=batch_size, sort_by_length=True),
+          plain.predict_batch(states, QUESTIONS, batch_size=batch_size))
+    check("length/no-op grouping for batch_size=%r" % batch_size, grouped.batch_rows, plain.batch_rows)
+
+f = make_length_fake()
+check("length/empty inputs", f.predict_batch([], QUESTIONS, sort_by_length=True), [])
+check("length/empty questions", f.predict_batch(states[:1], {}, sort_by_length=True)[0]["answers"], {})
+check("length/empty cases do not encode", f.encoded, [])
+f.predict_batch(states, QUESTIONS, sort_by_length=True, on_predict_start=lambda ctx: ctx.skip([]))
+check("length/cache skip does not encode", f.encoded, [])
+
+plain, grouped = make_length_fake(), make_length_fake()
+equal_lengths = [{"id": i, "length": 10} for i in range(20)]
+plain.predict_batch(equal_lengths, QUESTIONS, batch_size=3)
+grouped.predict_batch(equal_lengths, QUESTIONS, batch_size=3, sort_by_length=True)
+check("length/equal length ties preserve row order", grouped.batch_rows, plain.batch_rows)
+
+errors = []
+class RecordFailure:
+    def on_error(self, ctx):
+        errors.append(ctx.error)
+
+
+def fail_forward(batch):
+    raise RuntimeError("forward failed")
+
+
+f = make_length_fake()
+f._forward = fail_forward
+check_raises("length/forward error propagates", RuntimeError,
+             lambda: f.predict_batch(states, QUESTIONS, batch_size=2,
+                                     sort_by_length=True, hooks=[RecordFailure()]))
+check("length/error hook receives failure once", [str(e) for e in errors], ["forward failed"])
+
+
 f = make_fake()
 check("orchestration/empty states -> empty list", f.predict_batch([], QUESTIONS), [])
 

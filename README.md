@@ -50,7 +50,7 @@ Three checkpoints, and a `Router` that picks between them per request:
 
 * **About 10x faster loading.** Checkpoints are built without the throwaway random weight initialisation, so `laya.load()` drops from about 22 s to about 2 s on CPU with bit-identical answers. This also skips the pass that crashed on Windows with Python 3.14 (#123). A second `Agent` for the same checkpoint reuses its parsed tokenizer and loads in about 0.5 s.
 * **`import laya` no longer loads torch.** Routing, language detection and e-mail cleaning work in lightweight processes; torch loads on first use of a model.
-* **Batch scoring.** `agent.predict_batch(states, questions)` scores many states in shared forward passes, with answers identical to calling `predict` one state at a time. See [Batch Mode](#batch-mode-score-many-states-in-one-forward-pass).
+* **Batch scoring.** `agent.predict_batch(states, questions)` scores many states in shared forward passes and returns results in input order. See [Batch Mode](#batch-mode-score-many-states-in-one-forward-pass).
 * **Faster paths, all opt-in.** `laya.load(..., fast=True)` uses a TileLang GPU fast path that matches the stock bf16 forward within rounding (see [GPU Fast Path](#gpu-fast-path-tilelang)). `Agent(compile=True)` enables `torch.compile`, and `laya.onnx_agent.ONNXAgent` runs an exported model on ONNX Runtime.
 * **Run it your way, locally.** A self-hosted Jev-compatible HTTP server (`pip install "laya[serve]"`, then `laya-serve`, see [Self-Hosting](#self-hosting-http-server-jev-compatible)), a `laya` [command](#command-line) for quick local tests, an optional [MCP server](#mcp-server-optional) (`pip install "laya[mcp]"`), [LangChain and LangGraph](#langchain-and-langgraph-integration) routing, guardrails, triage and evaluation (`pip install "laya[langchain]"`), a Docker quickstart under `docs/docker.md`, and `laya-ts/`, a TypeScript package for Node and the browser that gives the same answers as the Python package.
 * **Better routing.** Plain-ASCII Spanish, Italian, Portuguese and French, Brazilian Portuguese support text, CJK text containing Latin brand names, romanized Bangla and Azerbaijani now reach the multilingual checkpoint. Scripts the router has no range for no longer fall through to English, and URLs, e-mail addresses and dotted names no longer count as words. Checked on 20,000 English texts: at most 5 English sentences move, all quoting long native-script names.
@@ -457,18 +457,29 @@ a log slice — `predict_batch` packs them into shared forward passes:
 states = [{"body": t} for t in ticket_texts]           # a list of states
 
 results = agent.predict_batch(states, questions)       # one forward pass for the whole list
-# results[i] is exactly what agent.predict(states[i], questions) would return
+# results[i] corresponds to states[i], with the same output shape as predict
 
 # Bound peak memory when the list (or the texts) are large — chunk into passes of N:
 results = agent.predict_batch(states, questions, batch_size=64)
+
+# Reduce padding when input lengths vary; results still follow the original state order:
+results = agent.predict_batch(states, questions, batch_size=64, sort_by_length=True)
 ```
 
-Results are aligned with `states` by index and identical in shape to `predict`. Decisions match the
-one-at-a-time path exactly (numbers are bit-identical on CPU; on GPU they can differ in the 4th
-decimal because fp16 autocast reorders reductions across padding widths). Batching is a **GPU
+`sort_by_length=True` groups states by their longest encoded question row, after truncation.
+It looks ahead at most eight batches and reuses the encoded rows for sorting. This uses more temporary
+CPU memory for tokenized inputs, and takes effect only when `1 < batch_size < len(states)`.
+Benchmark it on your workload and backend: uniform lengths offer little benefit, and changed
+batch shapes can cause small floating-point differences, including near decision thresholds.
+Hooks still see states and final results in input order. The option is available on `Agent`.
+
+Results are aligned with `states` by index and identical in shape to `predict`. Changing batch
+shapes can introduce floating-point differences on CPU and GPU; check decision thresholds on
+your workload, particularly with mixed precision. Batching is a **GPU
 throughput win** — on an RTX 5060 Ti, per-decision latency drops from ~10 ms one-by-one to ~1 ms
-batched (measured ~9–10×). On CPU the model is already compute-bound, so batching does not speed it
-up; use it there only for API convenience.
+batched (measured ~9–10×). On CPU, increasing batch size alone may not speed up inference;
+length grouping can help by reducing the padded work in a mixed-length workload. See the
+[CPU measurements and reproduction commands](research/README.md#length-batching).
 
 ---
 
