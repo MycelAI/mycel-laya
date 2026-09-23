@@ -214,9 +214,10 @@ class FinalizeTests(unittest.TestCase):
         # A zero scorer ties on every option; this degenerate synthetic dataset
         # labels every record with the first option. It tests plumbing, not skill.
         path = f.model.model_dir / "model.safetensors"
-        weights = load_file(str(path))
-        weights = {name: torch.zeros_like(value) if name.startswith("scorer.") else value
-                   for name, value in weights.items()}
+        # Clone every tensor so Windows can reopen the file for writing after
+        # safetensors releases its memory-mapped source.
+        weights = {name: torch.zeros_like(value) if name.startswith("scorer.") else value.clone()
+                   for name, value in load_file(str(path)).items()}
         save_file(weights, str(path))
         self.protocol["base_model_files"] = checkpoint_files(f.model.model_dir)
         self.protocol["policy"]["thresholds"] = [0.0]
