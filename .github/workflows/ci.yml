@@ -143,6 +143,12 @@ jobs:
           done
         shell: bash
 
+      - name: Prediction hook tests
+        run: |
+          python tests/test_hooks.py
+          python tests/test_hooks_api.py
+        shell: bash
+
       - name: Email cleaning tests
         run: python tests/test_email.py
         shell: bash
