@@ -34,10 +34,20 @@ class BenchmarkTests(unittest.TestCase):
                                  "reason": "unsupported_language"}]}
 
     def measure(self, **kwargs):
-        return benchmark.measure(self.fixture.output, self.receipt["manifest_sha256"], self.probe,
-                                 self.output, context="synthetic unit fixture", **kwargs)
+        if sys.platform == "win32" or sys.platform.startswith("linux"):
+            return benchmark.measure(self.fixture.output, self.receipt["manifest_sha256"], self.probe,
+                                     self.output, context="synthetic unit fixture", **kwargs)
+        # Only Windows and Linux have real memory samplers. Keep the decision
+        # contracts runnable elsewhere without claiming a host measurement.
+        synthetic_memory = {"resident_bytes": 1, "peak_resident_bytes": 1,
+                            "source": "synthetic test fixture"}
+        with patch.object(benchmark, "process_memory", return_value=synthetic_memory):
+            return benchmark.measure(self.fixture.output, self.receipt["manifest_sha256"], self.probe,
+                                     self.output, context="synthetic unit fixture", **kwargs)
 
     def test_actual_model_timing_and_memory_are_separate_from_guard_paths(self):
+        if sys.platform != "win32" and not sys.platform.startswith("linux"):
+            self.skipTest("real process-memory sampling is supported on Windows and Linux")
         result = self.measure()
         self.assertGreater(result["verified_load_ms"], 0)
         self.assertEqual(result, json.loads(self.output.read_text()))
