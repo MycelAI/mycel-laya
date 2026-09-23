@@ -292,8 +292,15 @@ All temperature fitting, metrics and threshold selection ran on Linux; a separat
 audit reproduced them and independently checked every threshold's accepted/error
 counts. The aggregate result retains the source-receipt hashes. This verifies
 collection provenance and numerical replay, not same-input Windows/Linux serving
-parity or real-bundle performance. The next declared encoder candidate still
-requires its own completed training and independent policy evaluation.
+parity or real-bundle performance.
+
+The [one-epoch encoder training audit](../research/results/arbanking77_encoder1_training_20260923.json)
+records a completed CPU run on 2026-09-23: 438 optimizer updates over all
+13,988 training examples. The independent audit verified the checkpoint and
+export hashes, preserved base files, finite exported tensors and neutral,
+unfitted temperatures. This establishes training and export integrity only.
+Calibration and independent policy evaluation are still required before this
+candidate can be selected; the final test remains sealed.
 
 A CPU pilot used four training-only examples from two source families, the actual
 322M multilingual checkpoint, and the complete 77-option schema. All option text
