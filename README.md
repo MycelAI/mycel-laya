@@ -619,6 +619,11 @@ restores it. Kernels compile once per shape bucket on first use (a few seconds, 
 
 ## Automated Confidence Gating
 
+For a measured error and coverage requirement, use the opt-in
+[threshold selection and independent testing utilities](docs/risk_policy.md).
+They account for sample uncertainty and multiple threshold comparisons, and require
+separate evidence for every declared language.
+
 Because Laya's probabilities are trained with strictly proper scoring rules (RLCD), confidence scores are statistically meaningful:
 
 ```python
@@ -1066,6 +1071,20 @@ Shortlisting the same option set on every request re-embeds option texts that do
 ---
 
 ## Fine-Tuning
+
+For custom labelled examples, the opt-in [adaptation data utilities](docs/adaptation_data.md)
+validate typed labels, track provenance and keep related examples together in four
+reproducible partitions for training, calibration, policy selection and final testing.
+
+The opt-in [local supervised runner](docs/adaptation_training.md) resumes weights,
+optimizer, scheduler and random state from a verified checkpoint. Its exports
+clear inherited calibration and remain compatible with the prediction SDK.
+Use [independent evaluation and bound calibration](docs/adaptation_evaluation.md)
+for resumable logit collection and held-out temperature fitting. The
+[English/MSA support-intent experiment](docs/arbanking77_adaptation.md) provides a
+pinned source adapter and a predeclared evaluation protocol. Its coordinator
+freezes selection before final testing; [verified deployment bundles](docs/adaptation_bundle.md)
+return explicit automatic or review outcomes under that fixed policy.
 
 Fine-tune Laya on your own domain data. The notebook runs on Kaggle's free 2xT4 GPUs and does
 the whole loop: build the dataset, train with RLCD (proper-scoring-rule rewards, GRPO-style

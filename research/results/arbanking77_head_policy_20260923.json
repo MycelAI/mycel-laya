@@ -1,0 +1,489 @@
+{
+  "schema_version": 1,
+  "stage": "candidate_policy_summary",
+  "experiment": "arbanking77-en-msa-v1",
+  "candidate": "head-1epoch",
+  "collection_source_commit": "a2d8763fedc0244a8a184958cbd272ac842a53ec",
+  "training_source_commit": "7b1d100820ca21e55f40273bde7142ebb20f134d",
+  "training_run_sha256": "a60b5c036f6928fa0b1c1d75ff5ac713cdea11bd94ddf4f6a031d87e278d4c4c",
+  "protocol_sha256": "aa91e979f2bab93dabb4e8f00ec246de25cd3bf0e2c6e25266aee8514a1d0f9c",
+  "dataset_manifest_sha256": "d0035dba6987ebf5c69a223013e4ed57fe8bf44d64716dc24e1bc53ca62b58e0",
+  "model_repository": "convaiinnovations/laya",
+  "model_revision": "1c5edc17a7acd8701df6fc341c0d179f1c62c982",
+  "model_subfolder": "multilingual",
+  "model_files": {
+    "encoder/config.json": "fad4076bcae03044a509e35a2d36c1cdff482fd4c2d6e7c5d187bbc7d8b91590",
+    "model.safetensors": "d5c38f43a85d5f7c69b42a8dcc4f9f20fecc2ad87f1f940f28f122c7040ba5bb",
+    "rl_agent_config.json": "305963d07afd4ee40e01f84e8cba17a1ad0218453cec2329dfb2791a8439ac37",
+    "tokenizer/tokenizer.json": "609d8f4c067cd3950f88594c5a802616cea245823836ef5848ee4fc40aab5b6f",
+    "tokenizer/tokenizer_config.json": "e8e6a37c189f9dd23976b86b3e1ddb6928472e9f87c94103a1aaff311f45f090"
+  },
+  "evidence_files_sha256": {
+    "report.json": "e35e969a485dde5549a36e1fd3af21ce773dcdaaecdda7dc940913840610cd2c",
+    "calibration.json": "6b0473058134429d319aa6894b8aaecaee878e2ce52a7bb32cae9e0b8d4f55d4",
+    "calibration/predictions.json": "47110c96e680cde89fddc70d19b0846ef12f92b70ee59bed7ee8d7dd58ecc5ca",
+    "policy/predictions.json": "2561be6c4d7eb5c4cd662b191e6ad8d0815d5e65929de90ca395938a6f466c59"
+  },
+  "temperature": [
+    0.9870641959513714,
+    1.0,
+    1.0
+  ],
+  "temperature_by_options": {},
+  "policy_metrics": {
+    "raw": {
+      "all": {
+        "samples": 2956,
+        "accuracy": 0.34607577807848444,
+        "nll": 2.778331381617554,
+        "brier": 0.7993418311758218,
+        "ece": 0.021406955386854425,
+        "ece_bins": 15
+      },
+      "by_language": {
+        "ar": {
+          "samples": 1478,
+          "accuracy": 0.21380243572395127,
+          "nll": 3.3533693960494566,
+          "brier": 0.9101734302587814,
+          "ece": 0.046571204209210786,
+          "ece_bins": 15
+        },
+        "en": {
+          "samples": 1478,
+          "accuracy": 0.4783491204330176,
+          "nll": 2.203293367185651,
+          "brier": 0.6885102320928622,
+          "ece": 0.040197421985700435,
+          "ece_bins": 15
+        }
+      }
+    },
+    "calibrated": {
+      "all": {
+        "samples": 2956,
+        "accuracy": 0.34607577807848444,
+        "nll": 2.778993133967552,
+        "brier": 0.7995419452954126,
+        "ece": 0.021000294077327647,
+        "ece_bins": 15
+      },
+      "by_language": {
+        "ar": {
+          "samples": 1478,
+          "accuracy": 0.21380243572395127,
+          "nll": 3.3561246369336915,
+          "brier": 0.9109894323826754,
+          "ece": 0.051308638440363985,
+          "ece_bins": 15
+        },
+        "en": {
+          "samples": 1478,
+          "accuracy": 0.4783491204330176,
+          "nll": 2.2018616310014125,
+          "brier": 0.6880944582081496,
+          "ece": 0.03282206521670932,
+          "ece_bins": 15
+        }
+      }
+    },
+    "training_prior": {
+      "all": {
+        "samples": 2956,
+        "accuracy": 0.013531799729364006,
+        "nll": 4.321469213499518,
+        "brier": 0.986533157493716,
+        "ece": 0.005735886015392487,
+        "ece_bins": 15
+      },
+      "by_language": {
+        "ar": {
+          "samples": 1478,
+          "accuracy": 0.013531799729364006,
+          "nll": 4.321469213499518,
+          "brier": 0.986533157493716,
+          "ece": 0.005735886015392487,
+          "ece_bins": 15
+        },
+        "en": {
+          "samples": 1478,
+          "accuracy": 0.013531799729364006,
+          "nll": 4.321469213499518,
+          "brier": 0.986533157493716,
+          "ece": 0.005735886015392487,
+          "ece_bins": 15
+        }
+      }
+    }
+  },
+  "selection": {
+    "protocol": {
+      "required_languages": [
+        "ar",
+        "en"
+      ],
+      "max_error": 0.05,
+      "min_coverage": 0.5,
+      "alpha": 0.0125
+    },
+    "threshold_grid": [
+      0.0,
+      0.5,
+      0.6,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9,
+      0.925,
+      0.95,
+      0.975,
+      0.99
+    ],
+    "n_options": 77,
+    "tail_probability": 0.00026041666666666666,
+    "by_language": {
+      "ar": {
+        "selected": null,
+        "candidates": [
+          {
+            "threshold": 0.0,
+            "samples": 1478,
+            "accepted": 1478,
+            "errors": 1162,
+            "coverage": 1.0,
+            "error_rate": 0.7861975642760487,
+            "error_upper": 0.8218396279274535,
+            "coverage_lower": 0.9944315106532527,
+            "qualified": false
+          },
+          {
+            "threshold": 0.5,
+            "samples": 1478,
+            "accepted": 148,
+            "errors": 68,
+            "coverage": 0.10013531799729364,
+            "error_rate": 0.4594594594594595,
+            "error_upper": 0.6040300852468757,
+            "coverage_lower": 0.07500952199162225,
+            "qualified": false
+          },
+          {
+            "threshold": 0.6,
+            "samples": 1478,
+            "accepted": 72,
+            "errors": 26,
+            "coverage": 0.04871447902571042,
+            "error_rate": 0.3611111111111111,
+            "error_upper": 0.5714647572711788,
+            "coverage_lower": 0.03150612368224748,
+            "qualified": false
+          },
+          {
+            "threshold": 0.7,
+            "samples": 1478,
+            "accepted": 29,
+            "errors": 7,
+            "coverage": 0.01962110960757781,
+            "error_rate": 0.2413793103448276,
+            "error_upper": 0.5764057779690738,
+            "coverage_lower": 0.009436557236855325,
+            "qualified": false
+          },
+          {
+            "threshold": 0.75,
+            "samples": 1478,
+            "accepted": 18,
+            "errors": 5,
+            "coverage": 0.012178619756427604,
+            "error_rate": 0.2777777777777778,
+            "error_upper": 0.7008837756895626,
+            "coverage_lower": 0.0046200485712400985,
+            "qualified": false
+          },
+          {
+            "threshold": 0.8,
+            "samples": 1478,
+            "accepted": 7,
+            "errors": 0,
+            "coverage": 0.004736129905277402,
+            "error_rate": 0.0,
+            "error_upper": 0.6924238317545721,
+            "coverage_lower": 0.0008182016268651893,
+            "qualified": false
+          },
+          {
+            "threshold": 0.85,
+            "samples": 1478,
+            "accepted": 1,
+            "errors": 0,
+            "coverage": 0.0006765899864682003,
+            "error_rate": 0.0,
+            "error_upper": 0.9997395833333333,
+            "coverage_lower": 1.762182394449141e-07,
+            "qualified": false
+          },
+          {
+            "threshold": 0.9,
+            "samples": 1478,
+            "accepted": 0,
+            "errors": 0,
+            "coverage": 0.0,
+            "error_rate": null,
+            "error_upper": 1.0,
+            "coverage_lower": 0.0,
+            "qualified": false
+          },
+          {
+            "threshold": 0.925,
+            "samples": 1478,
+            "accepted": 0,
+            "errors": 0,
+            "coverage": 0.0,
+            "error_rate": null,
+            "error_upper": 1.0,
+            "coverage_lower": 0.0,
+            "qualified": false
+          },
+          {
+            "threshold": 0.95,
+            "samples": 1478,
+            "accepted": 0,
+            "errors": 0,
+            "coverage": 0.0,
+            "error_rate": null,
+            "error_upper": 1.0,
+            "coverage_lower": 0.0,
+            "qualified": false
+          },
+          {
+            "threshold": 0.975,
+            "samples": 1478,
+            "accepted": 0,
+            "errors": 0,
+            "coverage": 0.0,
+            "error_rate": null,
+            "error_upper": 1.0,
+            "coverage_lower": 0.0,
+            "qualified": false
+          },
+          {
+            "threshold": 0.99,
+            "samples": 1478,
+            "accepted": 0,
+            "errors": 0,
+            "coverage": 0.0,
+            "error_rate": null,
+            "error_upper": 1.0,
+            "coverage_lower": 0.0,
+            "qualified": false
+          }
+        ]
+      },
+      "en": {
+        "selected": null,
+        "candidates": [
+          {
+            "threshold": 0.0,
+            "samples": 1478,
+            "accepted": 1478,
+            "errors": 771,
+            "coverage": 1.0,
+            "error_rate": 0.5216508795669824,
+            "error_upper": 0.5668495057398929,
+            "coverage_lower": 0.9944315106532527,
+            "qualified": false
+          },
+          {
+            "threshold": 0.5,
+            "samples": 1478,
+            "accepted": 573,
+            "errors": 159,
+            "coverage": 0.3876860622462788,
+            "error_rate": 0.2774869109947644,
+            "error_upper": 0.34621124007564447,
+            "coverage_lower": 0.3441105765001846,
+            "qualified": false
+          },
+          {
+            "threshold": 0.6,
+            "samples": 1478,
+            "accepted": 429,
+            "errors": 99,
+            "coverage": 0.2902571041948579,
+            "error_rate": 0.23076923076923078,
+            "error_upper": 0.3073814302134706,
+            "coverage_lower": 0.2502339212749499,
+            "qualified": false
+          },
+          {
+            "threshold": 0.7,
+            "samples": 1478,
+            "accepted": 294,
+            "errors": 52,
+            "coverage": 0.19891745602165087,
+            "error_rate": 0.17687074829931973,
+            "error_upper": 0.2645114235593688,
+            "coverage_lower": 0.16433127124395475,
+            "qualified": false
+          },
+          {
+            "threshold": 0.75,
+            "samples": 1478,
+            "accepted": 227,
+            "errors": 33,
+            "coverage": 0.15358592692828146,
+            "error_rate": 0.14537444933920704,
+            "error_upper": 0.2413633850478696,
+            "coverage_lower": 0.12273054730611443,
+            "qualified": false
+          },
+          {
+            "threshold": 0.8,
+            "samples": 1478,
+            "accepted": 151,
+            "errors": 10,
+            "coverage": 0.10216508795669824,
+            "error_rate": 0.06622516556291391,
+            "error_upper": 0.16487962281358623,
+            "coverage_lower": 0.07678649888067612,
+            "qualified": false
+          },
+          {
+            "threshold": 0.85,
+            "samples": 1478,
+            "accepted": 101,
+            "errors": 6,
+            "coverage": 0.06833558863328823,
+            "error_rate": 0.0594059405940594,
+            "error_upper": 0.18448726892388817,
+            "coverage_lower": 0.04768975971277889,
+            "qualified": false
+          },
+          {
+            "threshold": 0.9,
+            "samples": 1478,
+            "accepted": 58,
+            "errors": 5,
+            "coverage": 0.03924221921515562,
+            "error_rate": 0.08620689655172414,
+            "error_upper": 0.28121497878792606,
+            "coverage_lower": 0.023980313377217732,
+            "qualified": false
+          },
+          {
+            "threshold": 0.925,
+            "samples": 1478,
+            "accepted": 32,
+            "errors": 3,
+            "coverage": 0.02165087956698241,
+            "error_rate": 0.09375,
+            "error_upper": 0.38410009267530704,
+            "coverage_lower": 0.010843221361323097,
+            "qualified": false
+          },
+          {
+            "threshold": 0.95,
+            "samples": 1478,
+            "accepted": 15,
+            "errors": 1,
+            "coverage": 0.010148849797023005,
+            "error_rate": 0.06666666666666667,
+            "error_upper": 0.523317479979001,
+            "coverage_lower": 0.0034394356316173047,
+            "qualified": false
+          },
+          {
+            "threshold": 0.975,
+            "samples": 1478,
+            "accepted": 0,
+            "errors": 0,
+            "coverage": 0.0,
+            "error_rate": null,
+            "error_upper": 1.0,
+            "coverage_lower": 0.0,
+            "qualified": false
+          },
+          {
+            "threshold": 0.99,
+            "samples": 1478,
+            "accepted": 0,
+            "errors": 0,
+            "coverage": 0.0,
+            "error_rate": null,
+            "error_upper": 1.0,
+            "coverage_lower": 0.0,
+            "qualified": false
+          }
+        ]
+      }
+    },
+    "passed": false
+  },
+  "validation": {
+    "data_model_and_runtime_verified": true,
+    "calibration_reproduced": true,
+    "metrics_and_selection_reproduced": true,
+    "threshold_counts_independently_recomputed": true,
+    "launcher_terminal_exit_code": 0,
+    "known_late_console_summary_failure_verified": false,
+    "final_selection_refused": true
+  },
+  "final_test_evaluated": false,
+  "limitations": [
+    "Policy-selection partition only; final test remains unevaluated",
+    "No final candidate selection or deployment is authorized by this audit",
+    "Temperature scaling changes probabilities, not these argmax predictions",
+    "Base pretraining exposure is unknown; no native-speaker audit",
+    "Neither language has a qualifying threshold; no final test or deployment measurement was started",
+    "Small accuracy differences from the baseline have not been tested for statistical significance",
+    "Calibration fitting does not guarantee improvement in every held-out metric or language; Arabic policy NLL and ECE increased slightly",
+    "Matching collection identities across disjoint Windows/Linux partitions is not same-input prediction-parity evidence",
+    "No weights, source examples or prediction-level records are included in this aggregate result"
+  ],
+  "execution_evidence": {
+    "collection_hosts": {
+      "calibration": "Linux",
+      "policy": "Windows"
+    },
+    "statistical_analysis_host": "Linux",
+    "partition_ownership_declared_before_policy_completion": true,
+    "matched_collection_contract": [
+      "binding",
+      "runtime",
+      "implementation",
+      "batch_size",
+      "chunk_size"
+    ],
+    "collections": {
+      "calibration": {
+        "records": 3034,
+        "chunks": 48,
+        "records_sha256": "a9a40df0e1307b6142b485fbd0f0c8c1a5e0a7e51ad3158b1f6076bf8794ae69"
+      },
+      "policy": {
+        "records": 2956,
+        "chunks": 47,
+        "records_sha256": "f5989b6822320aa4751c669ab955a20faa950e1cc6901242187d6deb9e4daeff"
+      }
+    },
+    "combined_replay_new_forward_calls": 0,
+    "saved_prediction_artifacts_preserved": true,
+    "finalization_status": "head_not_qualified",
+    "deployment_measurement_status": "skipped_unqualified_head",
+    "source_receipts_sha256": {
+      "independent_summary": "47fb3b8025e48cd378535fb0d13bcca60e484a06286ed5a27298fcf9929d62b8",
+      "independent_audit": "82430baa731e5ce5a225d3540211b9ee6e5a10ebe2521b8d6112b762f1435d5a",
+      "audit_exit": "3e71a0aa9fa616cac9e2510ca7a8a0f3dad344fd97ce46873e0dcfe6129b04da",
+      "evaluation_exit": "8f9e05905b5ae917d6407ed02da56e53332ef7993a8a6b6dad29cf44ef341e43",
+      "finalization_exit": "911e37bd3eac4ce62a351a72828ce73a775cd630ff7d002bce0f2be528dc52dd",
+      "measurement_exit": "9036162a938060f0209bdd6695e5791a2e0b82307dba32b35d596ada70a24d56",
+      "partition_ownership_declaration": "9e731e000884d4378c973ce3f7779ef6b47a6dde59e26e0d758c86acea9271b1",
+      "cross_host_collection_binding": "3d364fa0059052f1f60b0f60dff783712fd56f6e5c6914cf08f480cba9cde266",
+      "windows_policy_transfer": "aae449c16d6ddf0d81e3bb917d6ffd2ccd5c5d88f4b0ef6560c10ec09afe07a6",
+      "linux_transfer_verification": "ca021edcf096f5d4c4a49a4f31fa33601ee91b85040c1f3194f7db527f8d4b05",
+      "assembly": "b49b3d4deda4a9d5aec3d04ed84af8a7671b568fe6b4b4ff0e7d2e56a3f1f5bb",
+      "failed_completed_prefix_refusal": "c715c97662f3a5a091ec632b07ca8549dbc7ec7006b1a37422d5bef7f02242c8"
+    }
+  }
+}

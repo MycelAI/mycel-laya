@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "stage": "audited_final_test_summary",
+  "experiment": "arbanking77-en-msa-v1",
+  "candidate": "encoder-3epoch",
+  "training_source_commit": "ef79fc5137f85f7e03e78b5aebabd1a0bc5cccd0",
+  "training_run_sha256": "02f0c19c1ad19bc69b894f626ff6c95a3b0bc409c33a90bc1c16a90bad10a7e5",
+  "protocol_sha256": "aa91e979f2bab93dabb4e8f00ec246de25cd3bf0e2c6e25266aee8514a1d0f9c",
+  "dataset_manifest_sha256": "d0035dba6987ebf5c69a223013e4ed57fe8bf44d64716dc24e1bc53ca62b58e0",
+  "frozen_selection_sha256": "7c777db4fc6e608bfc17d4c496fe26e5d952b9927002099cc1055a04b1c6ab17",
+  "final_run_sha256": "11ae63dc42f481b87f383e1d8cf032c34a0b9d2debebc058f34e09e4c2d0c0fc",
+  "final_report_sha256": "28adf992cf436b31319af05c34f0717563396886bcc4d0414fc0d28b0db817b5",
+  "final_report_file_sha256": "59116b113171a0665864c27c11d241ea8d596c6b209269fbcd99973009dbcd45",
+  "calibration_sha256": "a6369d2cdc704daf3ddc4e8d6a9efb3efb3d64f64132e9a1d174425109125a73",
+  "policy_sha256": "4ca82eba35552e438d890f1ae20b22fdd9a2c89f4c7ff520a3ac5c581633b622",
+  "test_predictions_sha256": "15c0653e8f2247693e09629d76cd3da6015e9e43b65dc8e70e3bbbacbe9bfc86",
+  "status": "qualified",
+  "bundle": {
+    "mode": "qualified",
+    "manifest_sha256": "edd9558aac690269ba4e004e9b47d2e58364c7005e89a873afd515123cb0ea20"
+  },
+  "final_gate": {
+    "schema_version": 1,
+    "stage": "final_test",
+    "protocol": {
+      "required_languages": [
+        "ar",
+        "en"
+      ],
+      "max_error": 0.05,
+      "min_coverage": 0.5,
+      "alpha": 0.0125
+    },
+    "n_options": 77,
+    "selection_sha256": "5dc54e09b3f7f3f939a65174913fe8dbf9fb9e658fcd58cb74dc76f9f353883d",
+    "samples_sha256": "2ef280932c58c564965356a613013391c6d91c1df32ebe3fe6ee7002f6f5f4eb",
+    "tail_probability": 0.003125,
+    "by_language": {
+      "ar": {
+        "threshold": 0.975,
+        "samples": 3077,
+        "accepted": 1855,
+        "errors": 29,
+        "coverage": 0.6028599285017875,
+        "error_rate": 0.015633423180592992,
+        "error_upper": 0.025285257937262214,
+        "coverage_lower": 0.5784148772628206,
+        "qualified": true
+      },
+      "en": {
+        "threshold": 0.95,
+        "samples": 3077,
+        "accepted": 2247,
+        "errors": 43,
+        "coverage": 0.7302567435814105,
+        "error_rate": 0.01913662661326213,
+        "error_upper": 0.028478725682469522,
+        "coverage_lower": 0.7078279097511615,
+        "qualified": true
+      }
+    },
+    "passed": true
+  },
+  "metrics": {
+    "raw": {
+      "split": "test",
+      "calibrated": false,
+      "records_sha256": "473b53d32d5b9630eb7cba01a87d8e83c4ca3baf9627e6d9bb5c06b68e71a6d3",
+      "questions": {
+        "intent": {
+          "all": {
+            "samples": 6154,
+            "accuracy": 0.8906402339941502,
+            "nll": 0.6254850347376414,
+            "brier": 0.18311347703813893,
+            "ece": 0.07855603311132303,
+            "ece_bins": 15
+          },
+          "by_language": {
+            "ar": {
+              "samples": 3077,
+              "accuracy": 0.880727981800455,
+              "nll": 0.6858712725551261,
+              "brier": 0.19759512469018473,
+              "ece": 0.08568544313572128,
+              "ece_bins": 15
+            },
+            "en": {
+              "samples": 3077,
+              "accuracy": 0.9005524861878453,
+              "nll": 0.5650987969201564,
+              "brier": 0.1686318293860932,
+              "ece": 0.07173977326738185,
+              "ece_bins": 15
+            }
+          }
+        }
+      }
+    },
+    "calibrated": {
+      "split": "test",
+      "calibrated": true,
+      "records_sha256": "473b53d32d5b9630eb7cba01a87d8e83c4ca3baf9627e6d9bb5c06b68e71a6d3",
+      "questions": {
+        "intent": {
+          "all": {
+            "samples": 6154,
+            "accuracy": 0.8906402339941502,
+            "nll": 0.4266771940376356,
+            "brier": 0.16502197930180748,
+            "ece": 0.02879689987402377,
+            "ece_bins": 15
+          },
+          "by_language": {
+            "ar": {
+              "samples": 3077,
+              "accuracy": 0.880727981800455,
+              "nll": 0.465797530146371,
+              "brier": 0.17823414970588944,
+              "ece": 0.03071982184258464,
+              "ece_bins": 15
+            },
+            "en": {
+              "samples": 3077,
+              "accuracy": 0.9005524861878453,
+              "nll": 0.38755685792890016,
+              "brier": 0.15180980889772552,
+              "ece": 0.030640606121654902,
+              "ece_bins": 15
+            }
+          }
+        }
+      }
+    }
+  },
+  "finalization_invocation": "65d5f6393e7c42228660a50ab34c7a11",
+  "terminal_receipt_sha256": "0218897a3bbc9c1d5cde4b8b99b84dd81a20ad28f4cec3f2d66fbb99cc2e2176",
+  "final_test_evaluated": true,
+  "limitations": [
+    "All three preceding candidates failed policy selection; their final tests were not evaluated",
+    "Thresholds, calibration and selected model were frozen before collecting the final test",
+    "Results apply to this paired English/Modern Standard Arabic banking-intent corpus and frozen protocol",
+    "Base-model pretraining exposure to the public corpus is unknown; no native-speaker audit",
+    "No source examples, prediction-level records, model weights or host-specific paths are included"
+  ]
+}
