@@ -326,8 +326,8 @@ English had two qualifying thresholds; Arabic had none in the frozen grid.
 The policy auditor reproduced calibration, metrics and all threshold counts,
 and a separate CPU replay and high-precision binomial-bound check agreed with
 the saved report. Finalization recorded `encoder_not_qualified` and opened no
-final-test or bundle artifacts. The declared three-epoch encoder candidate is
-the remaining slot; it starts from the pinned base rather than this checkpoint.
+final-test or bundle artifacts. The declared three-epoch encoder candidate was the remaining slot. Its subsequent
+completed desktop run starts independently from the pinned base; see below.
 
 A CPU pilot used four training-only examples from two source families, the actual
 322M multilingual checkpoint, and the complete 77-option schema. All option text
@@ -341,7 +341,7 @@ are not deployment throughput estimates.
 That pilot establishes execution and recovery only. It does not establish
 accuracy, calibration improvement, or an achievable automation rate. The separate
 baseline results above do not establish useful adapted-model automation. The
-three-epoch candidate and its independent evaluation remain pending. Synthetic CPU tests
+completed three-epoch result is recorded below. Synthetic CPU tests
 can be run separately without obtaining the corpus or pretrained weights:
 
 ```shell
@@ -354,3 +354,73 @@ The finalization tests include a complete run through real local-fixture forward
 passes, calibration, selection, final evaluation, publication and prediction.
 That fixture deliberately has a trivial scoring rule and synthetic labels; its
 passing gate verifies that the stages connect, not that a trained model is useful.
+
+
+### Completed three-epoch desktop run (2026-09-26)
+
+A fresh RTX 3060 CUDA run started independently from the pinned multilingual base
+using the declared three-epoch optimization settings and frozen source
+`ef79fc5137f85f7e03e78b5aebabd1a0bc5cccd0`. The
+[training audit](../research/results/arbanking77_encoder3_training_20260926.json)
+records 1,314 optimizer updates and 41,964 example visits across three epochs.
+The completed checkpoint, scheduler, finite exported tensors, preserved base
+assets and neutral unfitted temperatures passed the independent completion audit.
+The later safetensors recovery change did not replace this frozen source.
+The training receipt retains the CUDA runtime's `deterministic: false` setting.
+
+Candidate evaluation used the pinned CPU runtime with two Torch threads.
+After a user-requested pause for other desktop work, the same evaluation resumed
+from 896 verified calibration records in 14 atomic chunks. It completed all 3,034
+calibration and 2,956 independent policy representatives. The
+[policy audit](../research/results/arbanking77_encoder3_policy_20260926.json)
+reproduced calibration, metrics, selection and independently counted every
+threshold's accepted examples and errors. Policy-set intent accuracy was 88.02%
+for English and 86.74% for Modern Standard Arabic. Both languages passed the
+unchanged selection gate, at thresholds 0.95 and 0.975 respectively.
+
+The coordinator verified all four candidate reports, retained the three earlier
+failures, and froze the selected model, calibration and policy before final-test
+inference. The selection file's SHA-256 is
+`7c777db4fc6e608bfc17d4c496fe26e5d952b9927002099cc1055a04b1c6ab17`.
+The [independent final result](../research/results/arbanking77_encoder3_final_20260926.json)
+contains 3,077 test representatives per language, 6,154 total.
+
+| Final-test slice | All-example intent accuracy | Threshold | Accepted / 3,077 | Errors among accepted | Observed accepted error | Error upper bound | Coverage lower bound |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| English | 90.06% | 0.950 | 2,247 | 43 | 1.91% | 2.85% | 70.78% |
+| Modern Standard Arabic | 88.07% | 0.975 | 1,855 | 29 | 1.56% | 2.53% | 57.84% |
+
+**Both final gates passed.** The declared upper error bound is at most 5% and
+lower coverage bound is at least 50% for each required language. Observed accepted
+fractions were 73.03% and 60.29%. All-example accuracy uses every test
+representative; the selective error rate uses only those above the frozen
+threshold. Other valid inputs return review according to that policy.
+
+The published bundle is `qualified`, with trusted manifest SHA-256
+`edd9558aac690269ba4e004e9b47d2e58364c7005e89a873afd515123cb0ea20`.
+The [deployment evidence](../research/results/arbanking77_encoder3_deployment_20260926.json)
+records Linux measurement, an exact verified copy to Windows, and the fixed
+cross-host comparison. All ten probe cases agreed across ten measured repeats
+each, after two warmups per case. The largest probability difference was
+`3.08e-8`, within the frozen `1e-6` tolerance; outcomes and thresholds matched.
+
+| Desktop CPU measurement, two Torch threads | WSL Linux | Windows |
+| --- | ---: | ---: |
+| Verified bundle load, Python/import startup excluded | 24.89 s | 28.98 s |
+| Median complete prediction across six neural cases | 511-554 ms | 797-991 ms |
+| Process resident memory after prediction | 2.07 GiB | 1.93 GiB |
+| Process lifetime peak resident memory | 4.33 GiB | 4.75 GiB |
+
+The four structural guard cases are recorded separately from neural serving.
+These are exploratory serial measurements on one Ryzen 9 5950X desktop, with
+uncontrolled disk cache and whole-process memory. They do not establish concurrent
+throughput, a production tail-latency SLO or GPU serving performance. Probe agreement
+applies to these unlabelled cases; it does not establish semantic robustness, OOD
+behavior or agreement on every untested input near a threshold.
+
+The result meets this frozen corpus experiment's selective-routing target.
+It does not establish performance on Arabic dialects or other support domains;
+base-model pretraining exposure to the public corpus remains unknown, and no
+independent native-speaker audit was performed. Aggregate receipts are tracked;
+source examples, record-level predictions, model weights and checkpoints remain
+outside the Git repository.

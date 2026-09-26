@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "stage": "completed_training_audit",
+  "experiment": "arbanking77-en-msa-v1",
+  "candidate": "encoder-3epoch",
+  "protocol_sha256": "aa91e979f2bab93dabb4e8f00ec246de25cd3bf0e2c6e25266aee8514a1d0f9c",
+  "dataset_manifest_sha256": "d0035dba6987ebf5c69a223013e4ed57fe8bf44d64716dc24e1bc53ca62b58e0",
+  "training_source_commit": "ef79fc5137f85f7e03e78b5aebabd1a0bc5cccd0",
+  "verified_utc": "2026-09-26T01:04:18.975690+00:00",
+  "training_status": "complete",
+  "training_exit_code": 0,
+  "progress": {
+    "epoch": 3,
+    "cursor": 0,
+    "updates": 1314,
+    "examples_seen": 41964
+  },
+  "train_items": 13988,
+  "run_sha256": "02f0c19c1ad19bc69b894f626ff6c95a3b0bc409c33a90bc1c16a90bad10a7e5",
+  "checkpoint_sha256": "03a9a3711b5c18aa49380867c52b376ae783be1cca80a63abe4aa61be667b426",
+  "export_manifest_sha256": "05393cae05e00ab4ba69a898514a2ef4c445ab63bd5fce6d9dd66f41efa31a57",
+  "verified_export_files": {
+    "encoder/config.json": "fad4076bcae03044a509e35a2d36c1cdff482fd4c2d6e7c5d187bbc7d8b91590",
+    "model.safetensors": "4083024faffb90ec06ab0aaee4f68e2e83f7f823e7c0ff996b0f9f77e634f2be",
+    "rl_agent_config.json": "305963d07afd4ee40e01f84e8cba17a1ad0218453cec2329dfb2791a8439ac37",
+    "tokenizer/tokenizer.json": "609d8f4c067cd3950f88594c5a802616cea245823836ef5848ee4fc40aab5b6f",
+    "tokenizer/tokenizer_config.json": "e8e6a37c189f9dd23976b86b3e1ddb6928472e9f87c94103a1aaff311f45f090"
+  },
+  "verified_preserved_base_files": {
+    "encoder/config.json": "83f6916d13ef0f556ac461f28308dc2bffa7ebeadee8ec9e2db5812020ea5bb4",
+    "model.safetensors": "9d628fd971b700382ac6f65920a86f149777b2e748e0c955fb3b19695aa8f204",
+    "rl_agent_config.json": "25061739243b617ad88d1219ba6f8a9c86c5881ca28df024fa2d9b3b2fcc30c6",
+    "tokenizer/tokenizer.json": "609d8f4c067cd3950f88594c5a802616cea245823836ef5848ee4fc40aab5b6f",
+    "tokenizer/tokenizer_config.json": "6c6b2d8e3c84ce0e671c129cd6b374b235d6f9863042a5836358d00a89bbb5a1"
+  },
+  "temperature": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "temperature_by_options": {},
+  "calibration_status": "unfitted",
+  "tensor_audit": {
+    "all_export_tensors_finite": true,
+    "checkpoint_values_preserved_except_neutral_temperature": true,
+    "elements": 321908998,
+    "tensor_count": 170
+  },
+  "audit_passed": true,
+  "audit_receipt_sha256": "f298b267d7356fa2c7f2a079587c4bbf306d4e6e56ecde523d96cb28413f32d3",
+  "audit_helper_sha256": "9c20f04a46a109f882e32729de6219c5df59191a1c778cc89738571e49491904",
+  "scope": "Fresh desktop CUDA training from the pinned base; completed checkpoint, scheduler, export and neutral calibration audit.",
+  "held_out_quality_measurement_included": false,
+  "deployment_qualification_established": false,
+  "limitations": [
+    "Training completion does not establish accuracy, calibration, useful automation or deployment qualification",
+    "The policy partition requires independent evaluation before a candidate may be selected",
+    "No source examples, prediction-level records, model weights or host-specific paths are included"
+  ],
+  "training_device": "cuda",
+  "training_runtime": {
+    "python": "3.12.11",
+    "torch": "2.14.0+cu130",
+    "numpy": "2.5.3",
+    "tokenizers": "0.23.2",
+    "transformers": "5.17.0",
+    "device": "cuda",
+    "threads": 2,
+    "deterministic": false
+  },
+  "training_settings": {
+    "epochs": 3,
+    "batch_size": 1,
+    "grad_accum": 32,
+    "learning_rate": 0.0001,
+    "encoder_learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "max_grad_norm": 1.0,
+    "train_encoder": true,
+    "seed": 42,
+    "checkpoint_every": 25,
+    "max_len": 1024,
+    "head_max_len": 768
+  },
+  "training_invocation": "e6f7d07d4b1a4215b55eb81a2164f79c",
+  "declaration_sha256": "b25969ffc6a660cd96358265d68ff5e33871ec7091a3f4cef0fc0cb14cfb4732"
+}

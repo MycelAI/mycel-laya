@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "stage": "qualified_bundle_deployment_summary",
+  "experiment": "arbanking77-en-msa-v1",
+  "candidate": "encoder-3epoch",
+  "training_source_commit": "ef79fc5137f85f7e03e78b5aebabd1a0bc5cccd0",
+  "bundle_manifest_sha256": "edd9558aac690269ba4e004e9b47d2e58364c7005e89a873afd515123cb0ea20",
+  "probe_sha256": "8690e2c7dba6d70f4c68875b9a11415bec2c0536f6d5c967c9a72bdd2ec50b82",
+  "implementation_sha256": "12b5ff918fe52168950b716c691cb3e7d43acf786cb111b9d7443e631c158dd7",
+  "runtime_contract_sha256": "c1fadae3d9f4a12bf8e3bfe198b53ef5b7ab58b570e704173725bcafa4853857",
+  "linux_report_file_sha256": "27b52b31efb351a8059e97dabafa738bd8caeaf20e7140f8e873c042a570933c",
+  "windows_report_file_sha256": "11db56e69a6f4098e13f092fb5e2f1ed4dd982635332285a25678de222e381ae",
+  "comparison_file_sha256": "ceca6e2604fdb1a0f067a9b6478270784a4fb3de900aa0264528ba5e26918c00",
+  "windows_runner_sha256": "64c47783507429a03b3871ae1d9e0df4003d9061dede6688f8286c75e6cb7261",
+  "comparison": {
+    "schema_version": 1,
+    "stage": "deployment_comparison",
+    "passed": true,
+    "bundle_manifest_sha256": "edd9558aac690269ba4e004e9b47d2e58364c7005e89a873afd515123cb0ea20",
+    "probe_sha256": "8690e2c7dba6d70f4c68875b9a11415bec2c0536f6d5c967c9a72bdd2ec50b82",
+    "left_report_sha256": "46852f9da87e3fc049c19438ea1c8c4078c69a577513ec7db39ac5cad719daba",
+    "right_report_sha256": "7c2fdedbadd63bc4b8f409dbed6fc9b568e2e86ecdff0ac41f7d7230dfb0183c",
+    "probability_atol": 1e-06,
+    "max_probability_difference": 3.07893522899505e-08,
+    "mismatched_cases": [],
+    "scope": "observed probes only; no accuracy, OOD or distribution-shift guarantee"
+  },
+  "linux": {
+    "host": {
+      "system": "Linux",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "machine": "x86_64",
+      "processor": "x86_64",
+      "logical_cpus": 32
+    },
+    "runtime": {
+      "python": "3.12.11",
+      "torch": "2.14.0+cu130",
+      "numpy": "2.5.3",
+      "transformers": "5.17.0",
+      "tokenizers": "0.23.2",
+      "device": "cpu",
+      "dtype": "float32",
+      "threads": 2,
+      "implementation": {
+        "adapt_model.py": "0d18510def512e9574fded8475fa900b0421d9defebe18132023d062bb9275bd",
+        "common.py": "f231d42fcec84da203222fcaa89c083b22776e00341e66e118183d754e1dcabf",
+        "agent.py": "128567096446c5d39af8e4a3a7c4dd9e32a134a1b099ce5a5eed383beeff1b89",
+        "adapt_data.py": "837f41b1299fa5e432ed7a4fa68d7f7bf6629ec46573b3491dc3799b93b7d1e7",
+        "adapt_calibration.py": "63731659e5c7c4c046e67c9194406494b3610fb11fd1f0656ea849b1ff1ab33a",
+        "adapt_policy.py": "1a6d5da0a9de08fb041c75113f0155b48014679ce022dc223b3ab46a964e4e3d",
+        "risk.py": "c13bb41bf5d6512e74a3687b281f8c932683dcb58ead6e4e232551e3f350d477",
+        "adapt_bundle.py": "b4da77466775ed35b923e92d8ccd52a6273e3b1e81a4ece09c6addae20bb58f8"
+      }
+    },
+    "created_utc": "2026-09-26T02:06:09.759745+00:00",
+    "verified_load_ms": 24891.86699200036,
+    "memory": {
+      "before_load": {
+        "resident_bytes": 548515840,
+        "peak_resident_bytes": 548515840,
+        "source": "/proc/self/statm and getrusage; process lifetime peak RSS"
+      },
+      "after_load": {
+        "resident_bytes": 2176798720,
+        "peak_resident_bytes": 4645302272,
+        "source": "/proc/self/statm and getrusage; process lifetime peak RSS"
+      },
+      "after_prediction": {
+        "resident_bytes": 2221625344,
+        "peak_resident_bytes": 4645302272,
+        "source": "/proc/self/statm and getrusage; process lifetime peak RSS"
+      }
+    },
+    "warmup_per_case": 2,
+    "repeats_per_case": 10,
+    "cases": [
+      {
+        "id": "english_original",
+        "case_sha256": "5c8bb0d4f842db47d217df62d865599416cbc44be3ceadcd66c615bb34f42449",
+        "expect": "prediction",
+        "p50_ms": 519.1097795000132,
+        "p95_ms": 524.4513451501007,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "english_paraphrase",
+        "case_sha256": "a130dd7f2c93eb525dac8bf0934ddb60b9195ffdf41edbf6f76b14c378a17351",
+        "expect": "prediction",
+        "p50_ms": 512.0441270000811,
+        "p95_ms": 516.9360436495481,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "english_noisy_json",
+        "case_sha256": "7fda8129e45a1001e95c67bd16c38628f6180e76c303e9d38a80d834ca2024c9",
+        "expect": "prediction",
+        "p50_ms": 523.2578630002536,
+        "p95_ms": 530.708686549724,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "arabic_original",
+        "case_sha256": "592860e62fc4042476806a85f4aced2831697d7576e5c685d5d7fc61fb12cf36",
+        "expect": "prediction",
+        "p50_ms": 516.3273040002423,
+        "p95_ms": 523.9588452498083,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "arabic_paraphrase",
+        "case_sha256": "4d45726a33e74975c3ffa4f2cf3ec3a5b8a94eb7f344a350c6684bdf875e82fc",
+        "expect": "prediction",
+        "p50_ms": 510.9785300001022,
+        "p95_ms": 537.2332945000835,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "arabic_noisy_json",
+        "case_sha256": "7fee5c617b62f4fcdbca7ca2786aceda73c9ec4268df77ebd6ed02db14501999",
+        "expect": "prediction",
+        "p50_ms": 553.708829000243,
+        "p95_ms": 576.4646269502009,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "empty_state",
+        "case_sha256": "6308afb22e01fea840069a3ce25586f83b38a4ef273a8346a1896a2f3b31da58",
+        "expect": "review",
+        "p50_ms": 0.0011669999366858974,
+        "p95_ms": 0.0014619996363762764,
+        "stable_outcomes": true,
+        "observed_status": "review",
+        "observed_reason": "empty_or_invalid_state"
+      },
+      {
+        "id": "missing_state",
+        "case_sha256": "9f5086f32f54cfe6eca14f976f26b0f6174a5793102304928c81215356ed6526",
+        "expect": "review",
+        "p50_ms": 0.0005260003490548115,
+        "p95_ms": 0.0009400500402989559,
+        "stable_outcomes": true,
+        "observed_status": "review",
+        "observed_reason": "empty_or_invalid_state"
+      },
+      {
+        "id": "unsupported_language",
+        "case_sha256": "d4e389476e30333a3a57008ba1311bd397d7093146cd942327e5e849db883177",
+        "expect": "review",
+        "p50_ms": 0.00045100023271515965,
+        "p95_ms": 0.0005065005552751245,
+        "stable_outcomes": true,
+        "observed_status": "review",
+        "observed_reason": "unsupported_language"
+      },
+      {
+        "id": "truncated_state",
+        "case_sha256": "89f7bd2b20ef30ba013624b202fa55c2faf2d1bcbc8c1fccbc54b57e7d496861",
+        "expect": "review",
+        "p50_ms": 6.077487000311521,
+        "p95_ms": 6.22504159964592,
+        "stable_outcomes": true,
+        "observed_status": "review",
+        "observed_reason": "unsupported_input"
+      }
+    ]
+  },
+  "windows": {
+    "host": {
+      "system": "Windows",
+      "release": "11",
+      "machine": "AMD64",
+      "processor": "AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD",
+      "logical_cpus": 32
+    },
+    "runtime": {
+      "python": "3.12.11",
+      "torch": "2.14.0+cu130",
+      "numpy": "2.5.3",
+      "transformers": "5.17.0",
+      "tokenizers": "0.23.2",
+      "device": "cpu",
+      "dtype": "float32",
+      "threads": 2,
+      "implementation": {
+        "adapt_model.py": "0d18510def512e9574fded8475fa900b0421d9defebe18132023d062bb9275bd",
+        "common.py": "f231d42fcec84da203222fcaa89c083b22776e00341e66e118183d754e1dcabf",
+        "agent.py": "128567096446c5d39af8e4a3a7c4dd9e32a134a1b099ce5a5eed383beeff1b89",
+        "adapt_data.py": "837f41b1299fa5e432ed7a4fa68d7f7bf6629ec46573b3491dc3799b93b7d1e7",
+        "adapt_calibration.py": "63731659e5c7c4c046e67c9194406494b3610fb11fd1f0656ea849b1ff1ab33a",
+        "adapt_policy.py": "1a6d5da0a9de08fb041c75113f0155b48014679ce022dc223b3ab46a964e4e3d",
+        "risk.py": "c13bb41bf5d6512e74a3687b281f8c932683dcb58ead6e4e232551e3f350d477",
+        "adapt_bundle.py": "b4da77466775ed35b923e92d8ccd52a6273e3b1e81a4ece09c6addae20bb58f8"
+      }
+    },
+    "created_utc": "2026-09-26T02:11:15.776729+00:00",
+    "verified_load_ms": 28976.29200000665,
+    "memory": {
+      "before_load": {
+        "resident_bytes": 558145536,
+        "peak_resident_bytes": 558145536,
+        "source": "GetProcessMemoryInfo; process lifetime peak working set"
+      },
+      "after_load": {
+        "resident_bytes": 2048020480,
+        "peak_resident_bytes": 5102542848,
+        "source": "GetProcessMemoryInfo; process lifetime peak working set"
+      },
+      "after_prediction": {
+        "resident_bytes": 2077024256,
+        "peak_resident_bytes": 5102542848,
+        "source": "GetProcessMemoryInfo; process lifetime peak working set"
+      }
+    },
+    "warmup_per_case": 2,
+    "repeats_per_case": 10,
+    "cases": [
+      {
+        "id": "english_original",
+        "case_sha256": "5c8bb0d4f842db47d217df62d865599416cbc44be3ceadcd66c615bb34f42449",
+        "expect": "prediction",
+        "p50_ms": 888.673249995918,
+        "p95_ms": 942.8105949889868,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "english_paraphrase",
+        "case_sha256": "a130dd7f2c93eb525dac8bf0934ddb60b9195ffdf41edbf6f76b14c378a17351",
+        "expect": "prediction",
+        "p50_ms": 797.4696999881417,
+        "p95_ms": 928.3304400072666,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "english_noisy_json",
+        "case_sha256": "7fda8129e45a1001e95c67bd16c38628f6180e76c303e9d38a80d834ca2024c9",
+        "expect": "prediction",
+        "p50_ms": 891.207350010518,
+        "p95_ms": 1018.1924249831354,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "arabic_original",
+        "case_sha256": "592860e62fc4042476806a85f4aced2831697d7576e5c685d5d7fc61fb12cf36",
+        "expect": "prediction",
+        "p50_ms": 846.7097499960801,
+        "p95_ms": 952.7607549942331,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "arabic_paraphrase",
+        "case_sha256": "4d45726a33e74975c3ffa4f2cf3ec3a5b8a94eb7f344a350c6684bdf875e82fc",
+        "expect": "prediction",
+        "p50_ms": 856.5731499984395,
+        "p95_ms": 969.1286399916862,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "arabic_noisy_json",
+        "case_sha256": "7fee5c617b62f4fcdbca7ca2786aceda73c9ec4268df77ebd6ed02db14501999",
+        "expect": "prediction",
+        "p50_ms": 991.0596499976236,
+        "p95_ms": 1047.8072750047431,
+        "stable_outcomes": true,
+        "observed_status": "automate",
+        "observed_reason": "qualified_policy"
+      },
+      {
+        "id": "empty_state",
+        "case_sha256": "6308afb22e01fea840069a3ce25586f83b38a4ef273a8346a1896a2f3b31da58",
+        "expect": "review",
+        "p50_ms": 0.001600012183189392,
+        "p95_ms": 0.0020649997168220575,
+        "stable_outcomes": true,
+        "observed_status": "review",
+        "observed_reason": "empty_or_invalid_state"
+      },
+      {
+        "id": "missing_state",
+        "case_sha256": "9f5086f32f54cfe6eca14f976f26b0f6174a5793102304928c81215356ed6526",
+        "expect": "review",
+        "p50_ms": 0.0006500049494206905,
+        "p95_ms": 0.0009200070053339,
+        "stable_outcomes": true,
+        "observed_status": "review",
+        "observed_reason": "empty_or_invalid_state"
+      },
+      {
+        "id": "unsupported_language",
+        "case_sha256": "d4e389476e30333a3a57008ba1311bd397d7093146cd942327e5e849db883177",
+        "expect": "review",
+        "p50_ms": 0.000600004568696022,
+        "p95_ms": 0.0027450048946775453,
+        "stable_outcomes": true,
+        "observed_status": "review",
+        "observed_reason": "unsupported_language"
+      },
+      {
+        "id": "truncated_state",
+        "case_sha256": "89f7bd2b20ef30ba013624b202fa55c2faf2d1bcbc8c1fccbc54b57e7d496861",
+        "expect": "review",
+        "p50_ms": 9.625749997212552,
+        "p95_ms": 9.952490001160186,
+        "stable_outcomes": true,
+        "observed_status": "review",
+        "observed_reason": "unsupported_input"
+      }
+    ]
+  },
+  "validation": {
+    "qualified_final_gate_verified": true,
+    "linux_invocation_custody_verified": true,
+    "exact_bundle_copy_verified": true,
+    "same_fixed_probes_and_runtime_verified": true,
+    "comparison_passed": true,
+    "all_required_stages_terminal": true
+  },
+  "limitations": [
+    "Unlabelled serving probes do not measure accuracy or representative-distribution coverage",
+    "Six neural cases and four structural guard cases, two warmups and ten measured repeats each",
+    "Serial CPU measurements use two Torch threads on the same Ryzen 9 5950X desktop",
+    "OS disk cache was not controlled; verified load excludes Python/import startup",
+    "Memory is whole-process RSS/working set, not incremental model memory",
+    "Observed probe parity does not guarantee untested threshold-boundary, OOD or distribution-shift behavior",
+    "Exploratory timings do not establish a production tail-latency SLO, concurrent throughput or GPU serving performance"
+  ]
+}
